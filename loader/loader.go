@@ -6,14 +6,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"path/filepath"
+
+	"github.com/google/uuid"
 )
 
 //FileData info about a file
 type FileData struct {
+	ID         string   `json:"id"`
 	Name       string   `json:"name"`
 	DeviceName []string `json:"devicename"`
 	Md5        string   `json:"md5"`
 	Date       int64    `json:"date"`
+	FilePath   string   `json:"filepath"`
 }
 
 //LoadData Loda initial metadata
@@ -21,35 +26,58 @@ func LoadData(dir string) *[]*FileData {
 
 	ret := make([]*FileData, 0, 0)
 
-	files, err := ioutil.ReadDir(dir)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	findfiles := func(files)
-	for _, filename := range files {
-		el := &FileData{}
-		if filename.IsDir() {
-			dataTemp := LoadData(fmt.Sprintf("%s/%s", dir, filename.Name()))
-			for _, v := range *dataTemp {
-				v.DeviceName = append(v.DeviceName, filename.Name())
-			}
-			return dataTemp
-		}
-		el.Name = filename.Name()
-		el.Date = filename.ModTime().Unix()
-
-		pathfile := fmt.Sprintf("%s/%s", dir, filename.Name())
-
-		content, err := ioutil.ReadFile(pathfile)
+	var findfiles func(string) *[]*FileData
+	findfiles = func(dirt string) *[]*FileData {
+		reti := make([]*FileData, 0, 0)
+		files, err := ioutil.ReadDir(dirt)
 		if err != nil {
+			log.Println(err)
 			return nil
 		}
+		for _, filename := range files {
+			// fmt.Printf("filename: %v\n", filename.Name())
+			el := &FileData{}
+			if filename.IsDir() {
+				// fmt.Printf("dir recursive: %s/%s\n", dirt, filename.Name())
+				elt := findfiles(fmt.Sprintf("%s/%s", dirt, filename.Name()))
+				// fmt.Printf("dir recursive: %+v\n", *elt)
+				if elt != nil {
+					reti = append(reti, *elt...)
+					for _, v := range reti {
+						v.DeviceName = append(v.DeviceName, filename.Name())
+						// v.FilePath = fmt.Sprintf("%s/%s", filename.Name(), v.Name)
+					}
+				}
+				continue
+			}
+			el.ID = uuid.New().String()
+			el.Name = filename.Name()
+			el.Date = filename.ModTime().Unix()
 
-		md5sum := md5.Sum(content)
-		el.Md5 = hex.EncodeToString(md5sum[0:])
+			pathfile := fmt.Sprintf("%s/%s", dirt, filename.Name())
+			el.FilePath, _ = filepath.Rel(dir, pathfile)
 
-		ret = append(ret, el)
+			content, err := ioutil.ReadFile(pathfile)
+			if err != nil {
+				continue
+			}
+
+			md5sum := md5.Sum(content)
+			el.Md5 = hex.EncodeToString(md5sum[0:])
+
+			reti = append(reti, el)
+		}
+		return &reti
 	}
+	retii := findfiles(dir)
+	if retii != nil {
+		ret = append(ret, *retii...)
+		for _, v := range ret {
+			v.DeviceName = append(v.DeviceName, filepath.Base(dir))
+			// v.FilePath = fmt.Sprintf("%s/%s", filepath.Base(dir), v.Name)
+		}
+
+	}
+
 	return &ret
 }

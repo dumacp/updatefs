@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"log"
 	"strings"
 
 	"github.com/dumacp/updatefs/loader"
@@ -15,6 +16,9 @@ type Files struct {
 func (b *Files) Initialize(dir string) {
 
 	b.Store = loader.LoadData(dir)
+	for i, v := range *b.Store {
+		log.Printf("file %d: %v", i, v)
+	}
 }
 
 func (b *Files) SearchDeviceName(devicename string, date, limit, skip int) *[]*loader.FileData {
@@ -24,6 +28,7 @@ func (b *Files) SearchDeviceName(devicename string, date, limit, skip int) *[]*l
 				return true
 			}
 		}
+		return false
 	})
 	if limit == 0 || limit > len(*ret) {
 		limit = len(*ret)
@@ -32,21 +37,13 @@ func (b *Files) SearchDeviceName(devicename string, date, limit, skip int) *[]*l
 	return &data
 }
 
-func (b *Books) SearchBook(bookName string, ratingOver, ratingBelow float64, limit, skip int) *[]*loader.BookData {
-	ret := Filter(b.Store, func(v *loader.BookData) bool {
-		return strings.Contains(strings.ToLower(v.Title), strings.ToLower(bookName)) && v.AverageRating > ratingOver && v.AverageRating < ratingBelow
-	})
-	if limit == 0 || limit > len(*ret) {
-		limit = len(*ret)
-	}
-
-	data := (*ret)[skip:limit]
-	return &data
+func (b *Files) AllData() *[]*loader.FileData {
+	return b.Store
 }
 
-func (b *Books) SearchMD5(isbn string) *loader.BookData {
-	ret := Filter(b.Store, func(v *loader.BookData) bool {
-		return strings.ToLower(v.ISBN) == strings.ToLower(isbn)
+func (b *Files) SearchID(id string) *loader.FileData {
+	ret := Filter(b.Store, func(v *loader.FileData) bool {
+		return strings.ToLower(v.ID) == strings.ToLower(id)
 	})
 	if len(*ret) > 0 {
 		return (*ret)[0]
@@ -54,11 +51,30 @@ func (b *Books) SearchMD5(isbn string) *loader.BookData {
 	return nil
 }
 
-func (b *Books) CreateBook(book *loader.BookData) bool {
-	*b.Store = append(*b.Store, book)
+func (b *Files) SearchMD5(md5sum string) *loader.FileData {
+	ret := Filter(b.Store, func(v *loader.FileData) bool {
+		return strings.ToLower(v.Md5) == strings.ToLower(md5sum)
+	})
+	if len(*ret) > 0 {
+		return (*ret)[0]
+	}
+	return nil
+}
+
+func (b *Files) CreateFile(file *loader.FileData) bool {
+	*b.Store = append(*b.Store, file)
 	return true
 }
 
+func (b *Files) UpdateFile(id string, book *loader.FileData) bool {
+	return false
+}
+
+func (b *Files) DeleteFile(id string) bool {
+	return false
+}
+
+/**
 func (b *Books) DeleteBook(isbn string) bool {
 	indexToDelete := -1
 	for i, v := range *b.Store {
@@ -84,6 +100,7 @@ func (b *Books) UpdateBook(isbn string, book *loader.BookData) bool {
 	}
 	return false
 }
+/**/
 
 func Filter(vs *[]*loader.FileData, f func(*loader.FileData) bool) *[]*loader.FileData {
 	vsf := make([]*loader.FileData, 0)
