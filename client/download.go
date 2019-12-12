@@ -18,7 +18,15 @@ func DownloadFile(url, filepath string) error {
 	defer out.Close()
 
 	// Get the data
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+
+	transport := loadLocalCert()
+	client := http.Client{Transport: transport}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}

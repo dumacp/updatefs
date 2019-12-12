@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	apiversion  = "api/v1"
-	apifiledata = "filedata"
+	apiversion = "updatevoc/api/v1"
+	apidevice  = "device"
 )
 
 //NewRequestFilesByDevicename function valid a complete recorrido in metroplo WS
 func NewRequestFilesByDevicename(urlin, devicename string, date, limit, skip int) (*[]loader.FileData, error) {
 
-	urlGet := fmt.Sprintf("%s/%s/%s/device/%s", urlin, apiversion, apifiledata, devicename)
+	urlGet := fmt.Sprintf("%s/%s/%s/%s", urlin, apiversion, apidevice, devicename)
 
 	params := url.Values{}
 	params.Set("date", fmt.Sprintf("%d", date))

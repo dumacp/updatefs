@@ -1,0 +1,85 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: updatevoc-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: updatevoc-deploy
+  labels:
+    app: updatevoc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: updatevoc
+  template:
+    metadata:
+      labels:
+        app: updatevoc
+    spec:
+      containers:
+        - name: updatevoc
+          image: ccamilozt/updatefs:1.5
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /data/all
+              name: datadir
+      volumes:
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: updatevoc-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: updatevoc-svc
+  labels:
+    app: updatevoc
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: updatevoc
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-updatevoc
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    certmanager.k8s.io/issuer: "letsencrypt"
+    certmanager.k8s.io/acme-challenge-type: http01
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:  
+  rules:
+  - host: fleet.nebulae.com.co
+    http:
+      paths:  
+      - path: /updatevoc
+        backend:
+          serviceName: updatevoc-svc
+          servicePort: 8000          
+      - path: /static
+        backend:
+          serviceName: updatevoc-svc
+          servicePort: 8000          
+  tls:
+      - hosts:
+        - fleet.nebulae.com.co
+        secretName: tls-keycloak

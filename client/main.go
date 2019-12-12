@@ -125,31 +125,43 @@ func main() {
 		}
 	}
 
-	if err := keycloakinit(); err != nil {
-		log.Printf("ERROR keycloak init: %s", err)
-	}
-
 	var groupname string
-	token, err := keycloakNewToken()
-	if err != nil {
-		log.Println("ERROR keycloak token request: %s", err)
-	} else {
+
+	keycloakconn := func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Println("Recovered in f", r)
+			}
+		}()
+		if err := keycloakinit(); err != nil {
+			log.Printf("ERROR keycloak init: %s", err)
+		}
+		token, err := keycloakNewToken()
+		if err != nil {
+			log.Printf("ERROR keycloak token request: %s", err)
+			return
+		}
 		ts := keycloakTokenSource(token)
 		atts, err := keycloakinfo(ts)
 		if err != nil {
-			log.Println("ERROR keycloak token request attribs: %s", err)
+			log.Printf("ERROR keycloak token request attribs: %s", err)
+			return
 		}
 		log.Printf("attrs: %+v", atts)
 		if v, ok := atts["group_name"]; ok {
 			groupname = fmt.Sprintf("%s", v)
 		}
-
 	}
 
-	tick := time.NewTicker(30 * time.Minute)
-	start := time.After(3 * time.Second)
+	tick := time.NewTicker(10 * time.Minute)
+	start := time.After(60 * time.Second)
 
 	loopfunc := func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Println("Recovered in f", r)
+			}
+		}()
 		hostname, err := os.Hostname()
 		if err != nil {
 			log.Fatalf("Error: there is not hostname! %s", err)
@@ -214,8 +226,10 @@ func main() {
 
 		select {
 		case <-tick.C:
+			keycloakconn()
 			loopfunc()
 		case <-start:
+			keycloakconn()
 			loopfunc()
 		}
 
