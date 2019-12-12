@@ -28,7 +28,8 @@ func loadLocalCert() *http.Transport {
 		for _, cert := range certs {
 			file, err := ioutil.ReadFile(localCertDir + cert.Name())
 			if err != nil {
-				log.Fatalf("Failed to append %q to RootCAs: %v", cert, err)
+				log.Printf("Failed to append %q to RootCAs: %v", cert, err)
+				continue
 			}
 			// Append our cert to the system pool
 			if ok := rootCAs.AppendCertsFromPEM(file); !ok {

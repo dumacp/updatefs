@@ -26,10 +26,10 @@ type devicedata struct {
 }
 
 const (
-	dirDB          = "/tmp/SD/boltdbs"
+	dirDB          = "/SD/boltdbs"
 	nameDB         = "updatefs"
 	fileserverdir  = "static"
-	pathupdatefile = "/tmp/SD/update/migracion.zip"
+	pathupdatefile = "/SD/update/migracion.zip"
 )
 
 func init() {
@@ -71,10 +71,10 @@ func main() {
 	// 	log.Fatalln(err)
 	// }
 
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatalf("Error: there is not hostname! %s", err)
-	}
+	// hostname, err := os.Hostname()
+	// if err != nil {
+	// 	log.Fatalf("Error: there is not hostname! %s", err)
+	// }
 
 	//TODO: load device data
 	// flagupdateDB :=  false
@@ -125,23 +125,58 @@ func main() {
 		}
 	}
 
+	if err := keycloakinit(); err != nil {
+		log.Printf("ERROR keycloak init: %s", err)
+	}
+
+	var groupname string
+	token, err := keycloakNewToken()
+	if err != nil {
+		log.Println("ERROR keycloak token request: %s", err)
+	} else {
+		ts := keycloakTokenSource(token)
+		atts, err := keycloakinfo(ts)
+		if err != nil {
+			log.Println("ERROR keycloak token request attribs: %s", err)
+		}
+		log.Printf("attrs: %+v", atts)
+		if v, ok := atts["group_name"]; ok {
+			groupname = fmt.Sprintf("%s", v)
+		}
+
+	}
+
 	tick := time.NewTicker(30 * time.Minute)
 	start := time.After(3 * time.Second)
 
 	loopfunc := func() {
+		hostname, err := os.Hostname()
+		if err != nil {
+			log.Fatalf("Error: there is not hostname! %s", err)
+		}
+
 		store, err := NewRequestFilesByDevicename(urlin, hostname, int(filedata.Date), 1, 0)
 		if err != nil {
 			log.Printf("ERROR NewRequestFilesByDevicename: %s", err)
 			return
 		}
 		if store == nil || len(*store) <= 0 {
-			store, err = NewRequestFilesByDevicename(urlin, "all", int(filedata.Date), 1, 0)
-			if err != nil {
-				log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
-				return
-			}
-			if store == nil || len(*store) <= 0 {
-				return
+			if len(groupname) > 0 {
+				store, err = NewRequestFilesByDevicename(urlin, groupname, int(filedata.Date), 1, 0)
+				if err != nil {
+					log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
+					return
+				}
+				if store == nil || len(*store) <= 0 {
+					store, err = NewRequestFilesByDevicename(urlin, "all", int(filedata.Date), 1, 0)
+					if err != nil {
+						log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
+						return
+					}
+					if store == nil || len(*store) <= 0 {
+						return
+					}
+				}
 			}
 		}
 

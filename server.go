@@ -16,6 +16,10 @@ var (
 	files datastore.FileStore
 )
 
+const (
+	listensocket = "127.0.0.1:8000"
+)
+
 func timeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
 	log.Printf("%s took %s", name, elapsed)
@@ -23,7 +27,7 @@ func timeTrack(start time.Time, name string) {
 
 func init() {
 	defer timeTrack(time.Now(), "file load")
-	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
+	flag.StringVar(&dir, "dir", "/data", "the directory to serve files from. Defaults to the current dir")
 	files = &datastore.Files{}
 
 }
@@ -49,7 +53,7 @@ func main() {
 	api.HandleFunc("/file", createFile).Methods(http.MethodPost)
 	srv := &http.Server{
 		Handler: r,
-		Addr:    "127.0.0.1:8000",
+		Addr:    listensocket,
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
