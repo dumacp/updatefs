@@ -27,7 +27,7 @@ func timeTrack(start time.Time, name string) {
 
 func init() {
 	defer timeTrack(time.Now(), "file load")
-	flag.StringVar(&dir, "dir", "/data", "the directory to serve files from. Defaults to the current dir")
+	flag.StringVar(&dir, "dir", "/data/all", "the directory to serve files from. Defaults to the current dir")
 	files = &datastore.Files{}
 
 }

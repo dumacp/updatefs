@@ -6,7 +6,7 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-VOLUME /data
+VOLUME /data/all
 
 EXPOSE 8000/tcp
 
