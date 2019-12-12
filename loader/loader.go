@@ -42,11 +42,12 @@ func LoadData(dir string) *[]*FileData {
 				elt := findfiles(fmt.Sprintf("%s/%s", dirt, filename.Name()))
 				// fmt.Printf("dir recursive: %+v\n", *elt)
 				if elt != nil {
-					reti = append(reti, *elt...)
-					for _, v := range reti {
+					for _, v := range *elt {
+						// fmt.Printf("dir add: %+v, name: %v\n", filename.Name(), v.Name)
 						v.DeviceName = append(v.DeviceName, filename.Name())
 						// v.FilePath = fmt.Sprintf("%s/%s", filename.Name(), v.Name)
 					}
+					reti = append(reti, *elt...)
 				}
 				continue
 			}

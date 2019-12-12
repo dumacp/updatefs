@@ -18,7 +18,7 @@ func TestLoadData(t *testing.T) {
 			// TODO: Add test cases.
 			"test1",
 			args{
-				"/tmp/testloader",
+				"/tmp/all",
 			},
 			nil,
 		},

@@ -44,8 +44,8 @@ func main() {
 	api.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "api v1")
 	})
-	api.HandleFunc("/filedata/{devicename}", searchByDeviceName).Methods(http.MethodGet)
-	api.HandleFunc("/filedata", allData).Methods(http.MethodGet)
+	api.HandleFunc("/filedata/device/{devicename}", searchByDeviceName).Methods(http.MethodGet)
+	api.HandleFunc("/filedata/device", allDevices).Methods(http.MethodGet)
 	api.HandleFunc("/file", createFile).Methods(http.MethodPost)
 	srv := &http.Server{
 		Handler: r,

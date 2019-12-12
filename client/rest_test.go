@@ -1,29 +1,35 @@
 package main
 
 import (
-	"io/ioutil"
-	"net/http"
 	"reflect"
 	"testing"
+
+	"github.com/dumacp/updatefs/loader"
 )
 
-func TestNewRequestFiles(t *testing.T) {
+func TestNewRequestFilesByDeviname(t *testing.T) {
 	type args struct {
-		url        string
+		urlin      string
 		devicename string
+		date       int
+		limit      int
+		skip       int
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *http.Response
+		want    *[]*loader.FileData
 		wantErr bool
 	}{
 		// TODO: Add test cases.
 		{
 			"test1",
 			args{
-				"http://127.0.0.1:8000/api/v1/filedata",
-				"dir1",
+				"http://127.0.0.1:8000",
+				"all",
+				0,
+				2,
+				1,
 			},
 			nil,
 			false,
@@ -31,16 +37,16 @@ func TestNewRequestFiles(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewRequestFiles(tt.args.url, tt.args.devicename)
+			got, err := NewRequestFilesByDevicename(tt.args.urlin, tt.args.devicename, tt.args.date, tt.args.limit, tt.args.skip)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewRequestFiles() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("NewRequestFilesByDeviname() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewRequestFiles() = %+v, url %v want %v", got, tt.args.url, tt.want)
-				body, _ := ioutil.ReadAll(got.Body)
-				got.Body.Close()
-				t.Errorf("NewRequestFiles() = %s", body)
+				t.Errorf("NewRequestFilesByDeviname() = %v, want %v", got, tt.want)
+				for _, v := range *got {
+					t.Errorf("NewRequestFiles() = %+v", v)
+				}
 			}
 		})
 	}

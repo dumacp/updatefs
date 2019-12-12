@@ -81,7 +81,7 @@ func searchByDeviceName(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 }
 
-func allData(w http.ResponseWriter, r *http.Request) {
+func allDevices(w http.ResponseWriter, r *http.Request) {
 	mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 	data := *files.AllData()
