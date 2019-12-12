@@ -44,12 +44,12 @@ func main() {
 			log.Printf("Method %d: %s", i, v)
 		}
 	}
-	api := r.PathPrefix("/api/v1").Subrouter()
+	api := r.PathPrefix("/updatefs/api/v1").Subrouter()
 	api.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "api v1")
 	})
-	api.HandleFunc("/filedata/device/{devicename}", searchByDeviceName).Methods(http.MethodGet)
-	api.HandleFunc("/filedata/device", allDevices).Methods(http.MethodGet)
+	api.HandleFunc("/device/{devicename}", searchByDeviceName).Methods(http.MethodGet)
+	api.HandleFunc("/device", allDevices).Methods(http.MethodGet)
 	api.HandleFunc("/file", createFile).Methods(http.MethodPost)
 	srv := &http.Server{
 		Handler: r,
