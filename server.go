@@ -17,7 +17,7 @@ var (
 )
 
 const (
-	listensocket = "127.0.0.1:8000"
+	listensocket = "0.0.0.0:8000"
 )
 
 func timeTrack(start time.Time, name string) {
