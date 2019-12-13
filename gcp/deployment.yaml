@@ -21,6 +21,8 @@ spec:
   selector:
     matchLabels:
       app: updatevoc
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -28,7 +30,7 @@ spec:
     spec:
       containers:
         - name: updatevoc
-          image: ccamilozt/updatefs:1.5
+          image: ccamilozt/updatefs:1.8
           ports:
             - containerPort: 8000
             - containerPort: 22

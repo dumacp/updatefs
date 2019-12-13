@@ -18,5 +18,5 @@ VOLUME /data/all
 
 EXPOSE 8000/tcp
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["app"]
