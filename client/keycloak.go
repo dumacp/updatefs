@@ -22,19 +22,20 @@ var serverkey keycloak.Keycloak
 
 func keycloakinit() error {
 
-	ctx = context.Background()
 	config := &keycloak.ServerConfig{
 		Url:         keycloakurl,
 		ClientID:    clientid,
 		RedirectUrl: redirecturl,
 		Realm:       realm,
 	}
-
-	transport := loadLocalCert()
-	client := &http.Client{
-		Transport: transport,
+	if ctx == nil {
+		ctx = context.Background()
+		transport := loadLocalCert()
+		client := &http.Client{
+			Transport: transport,
+		}
+		ctx = keycloak.NewClientContext(ctx, client)
 	}
-	ctx = keycloak.NewClientContext(ctx, client)
 
 	var err error
 	serverkey, err = keycloak.NewConfig(ctx, config)
