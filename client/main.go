@@ -158,7 +158,7 @@ func main() {
 	}
 
 	tick := time.NewTicker(10 * time.Minute)
-	start := time.NewTimer(30 * time.Second)
+	start := time.NewTimer(3 * time.Second)
 
 	loopfunc := func() {
 		defer func() {
