@@ -13,7 +13,7 @@ import (
 const (
 	keycloakurl = "https://fleet.nebulae.com.co/auth"
 	clientid    = "devices"
-	redirecturl = "https://fleet.nebulae.com.co/updatefs/*"
+	redirecturl = "https://fleet.nebulae.com.co/updatevoc/*"
 	realm       = "DEVICES"
 )
 
