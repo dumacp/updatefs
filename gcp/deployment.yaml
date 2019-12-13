@@ -31,6 +31,7 @@ spec:
           image: ccamilozt/updatefs:1.5
           ports:
             - containerPort: 8000
+            - containerPort: 22
           volumeMounts:
             - mountPath: /data/all
               name: datadir
