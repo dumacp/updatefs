@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,10 +28,11 @@ type devicedata struct {
 }
 
 const (
-	dirDB          = "/SD/boltdbs"
-	nameDB         = "updatefs"
-	fileserverdir  = "static"
-	pathupdatefile = "/SD/update/migracion.zip"
+	dirDB           = "/SD/boltdbs"
+	nameDB          = "updatefs"
+	fileserverdir   = "updatevoc/static"
+	pathupdatefile  = "/SD/update/migracion.zip"
+	pathfirmwareRef = "/usr/include/firmware-ne"
 )
 
 func init() {
@@ -125,6 +128,18 @@ func main() {
 		}
 	}
 
+	var refSystem int
+	if firmwareV, err := ioutil.ReadFile(pathfirmwareRef); err != nil {
+		refSystem = 0
+	} else {
+		if refSystem, err = strconv.Atoi(string(firmwareV)); err != nil {
+			refSystem = 0
+		}
+	}
+	if filedata.Ref < refSystem {
+		filedata.Ref = refSystem
+	}
+
 	var groupname string
 
 	keycloakconn := func() error {
@@ -199,6 +214,7 @@ func main() {
 		filedatanow := (*store)[0]
 		fmt.Printf("%v, %v\n", filedatanow, filedata)
 		if filedatanow.Date > filedata.Date &&
+			filedatanow.Ref > filedata.Ref &&
 			(len(filedata.Md5) <= 0 ||
 				!strings.Contains(filedatanow.Md5, filedata.Md5)) {
 
@@ -209,6 +225,17 @@ func main() {
 				return
 			}
 			log.Printf("UPDATE FILE DOWNLOAD: %+v", filedatanow)
+			if filedatanows, err := json.Marshal(filedatanow); err == nil {
+				if err := NewUpdateByDevicename(
+					urlin,
+					hostname,
+					filedatanow.Md5,
+					string(filedatanows),
+					int(time.Now().Unix()),
+				); err != nil {
+					log.Printf("error NewUpdateByDevicename: %s", err)
+				}
+			}
 			if err := db.Update(func(tx *bolt.Tx) error {
 				bk := tx.Bucket([]byte("updates"))
 				if bk == nil {

@@ -57,32 +57,32 @@ spec:
     name: http
   selector:
     app: updatevoc
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: ingress-updatevoc
-  namespace: default
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    certmanager.k8s.io/issuer: "letsencrypt"
-    certmanager.k8s.io/acme-challenge-type: http01
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-spec:  
-  rules:
-  - host: fleet.nebulae.com.co
-    http:
-      paths:  
-      - path: /updatevoc
-        backend:
-          serviceName: updatevoc-svc
-          servicePort: 8000          
-      - path: /static
-        backend:
-          serviceName: updatevoc-svc
-          servicePort: 8000          
-  tls:
-      - hosts:
-        - fleet.nebulae.com.co
-        secretName: tls-keycloak
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: ingress-updatevoc
+#   namespace: default
+#   annotations:
+#     kubernetes.io/ingress.class: "nginx"
+#     certmanager.k8s.io/issuer: "letsencrypt"
+#     certmanager.k8s.io/acme-challenge-type: http01
+#     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+#     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+# spec:  
+#   rules:
+#   - host: fleet.nebulae.com.co
+#     http:
+#       paths:  
+#       - path: /updatevoc
+#         backend:
+#           serviceName: updatevoc-svc
+#           servicePort: 8000          
+#       - path: /static
+#         backend:
+#           serviceName: updatevoc-svc
+#           servicePort: 8000          
+#   tls:
+#       - hosts:
+#         - fleet.nebulae.com.co
+#         secretName: tls-keycloak

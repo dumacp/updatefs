@@ -13,12 +13,15 @@ import (
 
 //FileData info about a file
 type FileData struct {
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	DeviceName []string `json:"devicename"`
-	Md5        string   `json:"md5"`
-	Date       int64    `json:"date"`
-	FilePath   string   `json:"filepath"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	DeviceName  []string `json:"devicename"`
+	Md5         string   `json:"md5"`
+	Date        int64    `json:"date"`
+	FilePath    string   `json:"filepath"`
+	Description string   `json:"desc"`
+	Ref         int      `json:"ref"`
+	Version     string   `json:"version"`
 }
 
 //LoadData Loda initial metadata

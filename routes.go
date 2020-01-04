@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dumacp/updatefs/loader"
+	"github.com/dumacp/updatefs/updatedata"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -95,7 +98,123 @@ func allDevices(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+func searchUpdateByDeviceName(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	log.Printf("%+v", pathParams)
+	w.Header().Set("Content-Type", "application/json")
+	limit, err := getLimitParam(r)
+	skip, err := getSkipParam(r)
+	date, err := getDateParam(r)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error": "invalid datatype for parameter"}`))
+		return
+	}
+	if val, ok := pathParams["devicename"]; ok {
+		log.Printf("%+v", val)
+		data, err := updates.SearchUpdateDataDevice([]byte(val), date, limit, skip)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error": "error collenting data"}`))
+			return
+		}
+		b, err := json.Marshal(data)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error": "error marshalling data"}`))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(b)
+		return
+	}
+	w.WriteHeader(http.StatusNotFound)
+}
+
+func searchUpdateByFile(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	log.Printf("%+v", pathParams)
+	w.Header().Set("Content-Type", "application/json")
+	limit, err := getLimitParam(r)
+	skip, err := getSkipParam(r)
+	date, err := getDateParam(r)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error": "invalid datatype for parameter"}`))
+		return
+	}
+	if val, ok := pathParams["md5"]; ok {
+		log.Printf("%+v", val)
+		data, err := updates.SearchUpdateDataFile([]byte(val), date, limit, skip)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error": "error collenting data"}`))
+			return
+		}
+		b, err := json.Marshal(data)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error": "error marshalling data"}`))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(b)
+		return
+	}
+	w.WriteHeader(http.StatusNotFound)
+}
+
+func allUpdateDevices(w http.ResponseWriter, r *http.Request) {
+	mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
+	data := *files.AllData()
+	b, err := json.Marshal(data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error": "error marshalling data"}`))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
+}
+
 func createFile(w http.ResponseWriter, r *http.Request) {}
+
+func createUpdate(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	err := r.ParseForm()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "body not parsed"}`))
+		return
+	}
+
+	date, _ := strconv.Atoi(r.FormValue("date"))
+	filemd5 := r.FormValue("date")
+	devicename := r.FormValue("devicename")
+	ipclient := r.RemoteAddr
+	filedata := r.FormValue("filedata")
+
+	filed := new(loader.FileData)
+
+	if err := json.Unmarshal([]byte(filedata), filed); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "value filedata not parsed"}`))
+		return
+	}
+	upDevice := &updatedata.Updatedatadevice{
+		ID:        uuid.New().String(),
+		Date:      date,
+		Filedata:  filed,
+		IPRequest: ipclient,
+	}
+
+	if err := updates.NewUpdateDataDevice([]byte(devicename), []byte(filemd5), upDevice); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "NewUpdateDataDevice not created"}`))
+		return
+	}
+}
 
 /**
 func createBook(w http.ResponseWriter, r *http.Request) {

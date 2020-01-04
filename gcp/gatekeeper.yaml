@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatekeeper
+  labels:
+    app: gatekeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gatekeeper
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: gatekeeper
+    spec:
+      containers:
+        - name: gatekeeper
+          image: keycloak/keycloak-gatekeeper:7.0.0
+          ports:
+            - containerPort: 3000
+          args:
+            - --discovery-url=https://fleet.nebulae.com.co/auth/realms/DEVICES
+            - --client-id=testdev
+            - --client-secret=b73479a3-225b-4b96-ad65-22edd82623a3
+            - --listen=0.0.0.0:3000
+            - --redirection-url=https://fleet.nebulae.com.co
+            - --enable-refresh-tokens=true
+            - --encryption-key=AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2k
+            - --upstream-url=http://updatevoc-svc.default.svc.cluster.local:8000
+            - --enable-default-deny=true
+            - --resources=uri=/updatevoc/static*|roles=DEVICE_VOC
+            - --resources=uri=/static*|white-listed=true
+            - --resources=uri=/updatevoc/api/v1/*|white-listed=true
+            - --headers=myheader1=value1
+            - --headers=myheader2=value2
+            - --verbose
+            - --enable-logging
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatekeeper
+  labels:
+    app: gatekeeper
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: gatekeeper
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-updatevoc
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    #nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:  
+  rules:
+  - host: fleet.nebulae.com.co
+    http:
+      paths:  
+      - path: /updatevoc
+        backend:
+          serviceName: gatekeeper
+          servicePort: 3000
+      - path: /oauth
+        backend:
+          serviceName: gatekeeper
+          servicePort: 3000
+      - path: /static
+        backend:
+          serviceName: gatekeeper
+          servicePort: 3000
+  tls:
+      - hosts:
+        - fleet.nebulae.com.co
+        secretName: tls-keycloak

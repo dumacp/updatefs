@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	apiversion = "updatevoc/api/v1"
-	apidevice  = "device"
+	apiversion = "updatevoc/api/v2"
+	apidevice  = "files/device"
+	apiupdate  = "update"
 )
 
 //NewRequestFilesByDevicename function valid a complete recorrido in metroplo WS
@@ -41,6 +42,7 @@ func NewRequestFilesByDevicename(urlin, devicename string, date, limit, skip int
 
 	tr := loadLocalCert()
 	client := &http.Client{Transport: tr}
+	defer client.CloseIdleConnections()
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -65,6 +67,42 @@ func NewRequestFilesByDevicename(urlin, devicename string, date, limit, skip int
 	}
 
 	return &store, nil
+
+	//return http.DefaultClient.Do(req)
+}
+
+//NewUpdateByDevicename function valid a complete recorrido in metroplo WS
+func NewUpdateByDevicename(urlin, devicename, filemd5 string, filedata string, date int) error {
+
+	urlPost := fmt.Sprintf("%s/%s/%s", urlin, apiversion, apiupdate)
+
+	params := url.Values{}
+	params.Set("date", fmt.Sprintf("%d", date))
+	params.Set("devicename", devicename)
+	params.Set("filemd5", filemd5)
+	params.Set("filedata", filedata)
+
+	tr := loadLocalCert()
+	client := &http.Client{Transport: tr}
+	defer client.CloseIdleConnections()
+
+	resp, err := client.PostForm(urlPost, params)
+	if err != nil {
+		return err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
+
+	fmt.Printf("body: %s\n", body)
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("request error: %v, %s", resp.StatusCode, body)
+		return nil
+	}
+	return nil
 
 	//return http.DefaultClient.Do(req)
 }

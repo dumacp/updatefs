@@ -37,6 +37,22 @@ func (b *Files) SearchDeviceName(devicename string, date, limit, skip int) *[]*l
 	return &data
 }
 
+func (b *Files) SearchUpdate(devicename string, date, limit, skip int) *[]*loader.FileData {
+	ret := Filter(b.Store, func(v *loader.FileData) bool {
+		for _, vi := range v.DeviceName {
+			if strings.Contains(strings.ToLower(vi), strings.ToLower(devicename)) && int(v.Date) > date {
+				return true
+			}
+		}
+		return false
+	})
+	if limit == 0 || limit > len(*ret) {
+		limit = len(*ret)
+	}
+	data := (*ret)[skip:limit]
+	return &data
+}
+
 func (b *Files) AllData() *[]*loader.FileData {
 	return b.Store
 }
