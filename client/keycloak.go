@@ -70,3 +70,11 @@ func keycloakTokenSource(token *oauth2.Token) oauth2.TokenSource {
 func keycloakinfo(tokensource oauth2.TokenSource) (map[string]interface{}, error) {
 	return serverkey.UserInfo(ctx, tokensource)
 }
+
+func keycloakclient(tokensource oauth2.TokenSource) (*http.Client, error) {
+	if tk, err := tokensource.Token(); err != nil {
+		return nil, err
+	} else {
+		return serverkey.Client(ctx, tk), nil
+	}
+}

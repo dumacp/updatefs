@@ -31,6 +31,7 @@ spec:
             - --encryption-key=AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2k
             - --upstream-url=http://updatevoc-svc.default.svc.cluster.local:8000
             - --enable-default-deny=true
+            - --resources=uri=/updatevoc/api/v2/*|roles=DEVICE_VOC
             - --resources=uri=/updatevoc/static*|roles=DEVICE_VOC
             - --resources=uri=/static*|white-listed=true
             - --resources=uri=/updatevoc/api/v1/*|white-listed=true

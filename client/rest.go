@@ -18,7 +18,7 @@ const (
 )
 
 //NewRequestFilesByDevicename function valid a complete recorrido in metroplo WS
-func NewRequestFilesByDevicename(urlin, devicename string, date, limit, skip int) (*[]loader.FileData, error) {
+func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, date, limit, skip int) (*[]loader.FileData, error) {
 
 	urlGet := fmt.Sprintf("%s/%s/%s/%s", urlin, apiversion, apidevice, devicename)
 
@@ -40,9 +40,9 @@ func NewRequestFilesByDevicename(urlin, devicename string, date, limit, skip int
 
 	log.Printf("request: %v\n", req)
 
-	tr := loadLocalCert()
-	client := &http.Client{Transport: tr}
-	defer client.CloseIdleConnections()
+	// tr := loadLocalCert()
+	// client := &http.Client{Transport: tr}
+	// defer client.CloseIdleConnections()
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -72,7 +72,7 @@ func NewRequestFilesByDevicename(urlin, devicename string, date, limit, skip int
 }
 
 //NewUpdateByDevicename function valid a complete recorrido in metroplo WS
-func NewUpdateByDevicename(urlin, devicename, filemd5 string, filedata string, date int) error {
+func NewUpdateByDevicename(client *http.Client, urlin, devicename, filemd5 string, filedata string, date int) error {
 
 	urlPost := fmt.Sprintf("%s/%s/%s", urlin, apiversion, apiupdate)
 
@@ -82,9 +82,9 @@ func NewUpdateByDevicename(urlin, devicename, filemd5 string, filedata string, d
 	params.Set("filemd5", filemd5)
 	params.Set("filedata", filedata)
 
-	tr := loadLocalCert()
-	client := &http.Client{Transport: tr}
-	defer client.CloseIdleConnections()
+	// tr := loadLocalCert()
+	// client := &http.Client{Transport: tr}
+	// defer client.CloseIdleConnections()
 
 	resp, err := client.PostForm(urlPost, params)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"strconv"
@@ -141,6 +142,7 @@ func main() {
 	}
 
 	var groupname string
+	var client *http.Client
 
 	keycloakconn := func() error {
 		defer func() {
@@ -169,37 +171,45 @@ func main() {
 		if v, ok := atts["group_name"]; ok {
 			groupname = fmt.Sprintf("%s", v)
 		}
+		client, err = keycloakclient(ts)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
 	tick := time.NewTicker(10 * time.Minute)
 	start := time.NewTimer(3 * time.Second)
 
-	loopfunc := func() {
+	loopfunc := func(client *http.Client) {
+		if client == nil {
+			return
+		}
 		defer func() {
 			if r := recover(); r != nil {
 				log.Println("Recovered in f", r)
 			}
+			client.CloseIdleConnections()
 		}()
 		hostname, err := os.Hostname()
 		if err != nil {
 			log.Fatalf("Error: there is not hostname! %s", err)
 		}
 
-		store, err := NewRequestFilesByDevicename(urlin, hostname, int(filedata.Date), 1, 0)
+		store, err := NewRequestFilesByDevicename(client, urlin, hostname, int(filedata.Date), 1, 0)
 		if err != nil {
 			log.Printf("ERROR NewRequestFilesByDevicename: %s", err)
 			return
 		}
 		if store == nil || len(*store) <= 0 {
 			if len(groupname) > 0 {
-				store, err = NewRequestFilesByDevicename(urlin, groupname, int(filedata.Date), 1, 0)
+				store, err = NewRequestFilesByDevicename(client, urlin, groupname, int(filedata.Date), 1, 0)
 				if err != nil {
 					log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
 					return
 				}
 				if store == nil || len(*store) <= 0 {
-					store, err = NewRequestFilesByDevicename(urlin, "all", int(filedata.Date), 1, 0)
+					store, err = NewRequestFilesByDevicename(client, urlin, "all", int(filedata.Date), 1, 0)
 					if err != nil {
 						log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
 						return
@@ -225,8 +235,10 @@ func main() {
 				return
 			}
 			log.Printf("UPDATE FILE DOWNLOAD: %+v", filedatanow)
+
 			if filedatanows, err := json.Marshal(filedatanow); err == nil {
 				if err := NewUpdateByDevicename(
+					client,
 					urlin,
 					hostname,
 					filedatanow.Md5,
@@ -258,13 +270,13 @@ func main() {
 		select {
 		case <-tick.C:
 			// keycloakconn()
-			loopfunc()
+			loopfunc(client)
 		case <-start.C:
 			if err := keycloakconn(); err != nil {
 				start.Reset(30 * time.Second)
 				break
 			}
-			loopfunc()
+			loopfunc(client)
 		}
 
 	}
