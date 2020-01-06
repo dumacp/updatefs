@@ -72,9 +72,9 @@ func keycloakinfo(tokensource oauth2.TokenSource) (map[string]interface{}, error
 }
 
 func keycloakclient(tokensource oauth2.TokenSource) (*http.Client, error) {
-	if tk, err := tokensource.Token(); err != nil {
+	tk, err := tokensource.Token()
+	if err != nil {
 		return nil, err
-	} else {
-		return serverkey.Client(ctx, tk), nil
 	}
+	return serverkey.Client(ctx, tk), nil
 }
