@@ -56,7 +56,7 @@ func main() {
 			log.Printf("Method %d: %s", i, v)
 		}
 	}
-	apiv1 := r.PathPrefix("/updatevoc/api/v2").Subrouter()
+	apiv1 := r.PathPrefix("/updatevoc/api/v1").Subrouter()
 	apiv1.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "api v1")
 	})
