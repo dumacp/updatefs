@@ -38,7 +38,7 @@ func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, 
 	// 	return nil, err
 	// }
 
-	log.Printf("request: %v\n", req)
+	// log.Printf("request: %v\n", req)
 
 	// tr := loadLocalCert()
 	// client := &http.Client{Transport: tr}
