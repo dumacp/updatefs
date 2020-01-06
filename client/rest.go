@@ -33,10 +33,10 @@ func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, 
 	}
 	urlv.RawQuery = params.Encode()
 
-	req, err := http.NewRequest("GET", urlv.String(), nil)
-	if err != nil {
-		return nil, err
-	}
+	// req, err := http.NewRequest("GET", urlv.String(), nil)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	log.Printf("request: %v\n", req)
 
@@ -44,7 +44,7 @@ func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, 
 	// client := &http.Client{Transport: tr}
 	// defer client.CloseIdleConnections()
 
-	resp, err := client.Do(req)
+	resp, err := client.Get(urlv.String())
 	if err != nil {
 		return nil, err
 	}
