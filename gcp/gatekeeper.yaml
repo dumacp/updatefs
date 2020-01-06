@@ -23,8 +23,8 @@ spec:
             - containerPort: 3000
           args:
             - --discovery-url=https://fleet.nebulae.com.co/auth/realms/DEVICES
-            - --client-id=testdev
-            - --client-secret=b73479a3-225b-4b96-ad65-22edd82623a3
+            - --client-id=devices
+            #- --client-secret=b73479a3-225b-4b96-ad65-22edd82623a3
             - --listen=0.0.0.0:3000
             - --redirection-url=https://fleet.nebulae.com.co
             - --enable-refresh-tokens=true
