@@ -63,7 +63,7 @@ func (up *UpdateData) NewUpdateDataDevice(devicename, key []byte, value *Updated
 			}
 		}
 		bkDate := tx.Bucket([]byte(bucketupdatesdevicesDate))
-		if bk == nil {
+		if bkDate == nil {
 			var err error
 			if bk, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesdevicesDate)); err != nil {
 				return err
@@ -77,7 +77,7 @@ func (up *UpdateData) NewUpdateDataDevice(devicename, key []byte, value *Updated
 			}
 		}
 		bkdevicesDate := bkDate.Bucket(devicename)
-		if bkdevices == nil {
+		if bkdevicesDate == nil {
 			var err error
 			if bkdevices, err = tx.CreateBucketIfNotExists(devicename); err != nil {
 				return err
@@ -111,7 +111,7 @@ func (up *UpdateData) NewUpdateDataFile(filemd5, key []byte, value *Updatedatafi
 			}
 		}
 		bkDate := tx.Bucket([]byte(bucketupdatesfilesDate))
-		if bk == nil {
+		if bkDate == nil {
 			var err error
 			if bk, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesfiles)); err != nil {
 				return err
@@ -125,7 +125,7 @@ func (up *UpdateData) NewUpdateDataFile(filemd5, key []byte, value *Updatedatafi
 			}
 		}
 		bkfilesDate := bkDate.Bucket(filemd5)
-		if bkfiles == nil {
+		if bkfilesDate == nil {
 			var err error
 			if bkfiles, err = tx.CreateBucketIfNotExists(filemd5); err != nil {
 				return err
