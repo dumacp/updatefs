@@ -131,10 +131,10 @@ func main() {
 
 	var refSystem int
 	if firmwareV, err := ioutil.ReadFile(pathfirmwareRef); err != nil {
-		refSystem = 0
+		refSystem = -1
 	} else {
 		if refSystem, err = strconv.Atoi(string(firmwareV)); err != nil {
-			refSystem = 0
+			refSystem = 1
 		}
 	}
 	if filedata.Ref < refSystem {
