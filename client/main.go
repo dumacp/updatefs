@@ -222,7 +222,7 @@ func main() {
 		}
 
 		filedatanow := (*store)[0]
-		fmt.Printf("%v, %v\n", filedatanow, filedata)
+		fmt.Printf("%+v, %+v\n", filedatanow, filedata)
 		if filedatanow.Date > filedata.Date &&
 			filedatanow.Ref > filedata.Ref &&
 			(len(filedata.Md5) <= 0 ||
