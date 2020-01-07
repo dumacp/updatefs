@@ -58,7 +58,7 @@ func searchByID(w http.ResponseWriter, r *http.Request) {
 
 func searchByDeviceName(w http.ResponseWriter, r *http.Request) {
 	pathParams := mux.Vars(r)
-	log.Printf("%+v", pathParams)
+	//log.Printf("%+v", pathParams)
 	w.Header().Set("Content-Type", "application/json")
 	limit, err := getLimitParam(r)
 	skip, err := getSkipParam(r)
@@ -69,7 +69,7 @@ func searchByDeviceName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if val, ok := pathParams["devicename"]; ok {
-		log.Printf("%+v", val)
+		//og.Printf("%+v", val)
 		data := *files.SearchDeviceName(val, date, limit, skip)
 		b, err := json.Marshal(data)
 		if err != nil {
@@ -100,7 +100,7 @@ func allDevices(w http.ResponseWriter, r *http.Request) {
 
 func searchUpdateByDeviceName(w http.ResponseWriter, r *http.Request) {
 	pathParams := mux.Vars(r)
-	log.Printf("%+v", pathParams)
+	//log.Printf("%+v", pathParams)
 	w.Header().Set("Content-Type", "application/json")
 	limit, err := getLimitParam(r)
 	skip, err := getSkipParam(r)
@@ -111,9 +111,10 @@ func searchUpdateByDeviceName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if val, ok := pathParams["devicename"]; ok {
-		log.Printf("%+v", val)
+		//og.Printf("%+v", val)
 		data, err := updates.SearchUpdateDataDevice([]byte(val), date, limit, skip)
 		if err != nil {
+			log.Printf("error SearchUpdateDataDevice: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(`{"error": "error collenting data"}`))
 			return
