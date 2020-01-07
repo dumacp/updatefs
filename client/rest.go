@@ -14,7 +14,7 @@ import (
 const (
 	apiversion = "updatevoc/api/v2"
 	apidevice  = "files/device"
-	apiupdate  = "update"
+	apiupdate  = "updates"
 )
 
 //NewRequestFilesByDevicename function valid a complete recorrido in metroplo WS
