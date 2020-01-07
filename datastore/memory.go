@@ -1,21 +1,30 @@
 package datastore
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 
+	"github.com/boltdb/bolt"
 	"github.com/dumacp/updatefs/loader"
 )
 
 //Files struct abour store
 type Files struct {
 	Store *[]*loader.FileData `json:"store"`
+	db    *bolt.DB
 }
 
 //Initialize init database
-func (b *Files) Initialize(dir string) {
+func (b *Files) Initialize(pathdb string) {
 
-	b.Store = loader.LoadData(dir)
+	var err error
+	b.db, err = bolt.Open(pathdb, 0644, nil)
+	if err != nil {
+		log.Print("error: dont open files database")
+	}
+
+	b.Store = loader.LoadData(b.db)
 	for i, v := range *b.Store {
 		log.Printf("file %d: %v", i, v)
 	}
@@ -78,6 +87,26 @@ func (b *Files) SearchMD5(md5sum string) *loader.FileData {
 }
 
 func (b *Files) CreateFile(file *loader.FileData) bool {
+	filev, err := json.Marshal(file)
+	if err != nil {
+		log.Print("error: dont parse file")
+		return false
+	}
+
+	if err := b.db.Update(func(tx *bolt.Tx) error {
+		bk, err := tx.CreateBucketIfNotExists([]byte(loader.Bucketfiles))
+		if err != nil {
+			return bolt.ErrBucketNotFound
+		}
+		if err := bk.Put([]byte(file.Md5), filev); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		log.Printf("error: create file data in database, %s", err)
+		return false
+	}
+
 	*b.Store = append(*b.Store, file)
 	return true
 }

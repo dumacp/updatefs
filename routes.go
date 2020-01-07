@@ -1,10 +1,17 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/dumacp/updatefs/loader"
 	"github.com/dumacp/updatefs/updatedata"
@@ -179,7 +186,70 @@ func allUpdateDevices(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func createFile(w http.ResponseWriter, r *http.Request) {}
+func createFile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	err := r.ParseForm()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "body not parsed"}`))
+		return
+	}
+
+	fileupload, _, err := r.FormFile("fileToUpload")
+	if err != nil {
+		log.Printf("error fileupload: %s", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "upload file data"}`))
+		return
+	}
+	defer fileupload.Close()
+	desc := r.FormValue("description")
+	ref, _ := strconv.Atoi(r.FormValue("reference"))
+	version := r.FormValue("version")
+	path := r.FormValue("path")
+
+	filePath := filepath.Clean(fmt.Sprintf("%s/%s/migracion_%s.zip", dir, filepath.Clean(path), version))
+	data, err := ioutil.ReadAll(fileupload)
+	if err != nil {
+		if err := ioutil.WriteFile(filePath, data, 0644); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(`{"error": "write file data"}`))
+			return
+		}
+	}
+	filed := new(loader.FileData)
+	for _, v := range strings.Split(filepath.Clean(path), "/") {
+		if len(v) > 0 {
+			filed.DeviceName = append(filed.DeviceName, v)
+		}
+	}
+
+	filed.FilePath = filePath
+	filed.Name = filepath.Base(filePath)
+	filed.ID = uuid.New().String()
+	filed.Date = time.Now().Unix()
+	md5sum := md5.Sum(data)
+	filed.Md5 = hex.EncodeToString(md5sum[0:])
+	filed.Description = desc
+	filed.Ref = ref
+	filed.Version = version
+
+	filev, err := json.Marshal(filed)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "dont parse file""}`))
+		return
+	}
+
+	if !files.CreateFile(filed) {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "dont persist file""}`))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(filev)
+
+}
 
 func createUpdate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -215,6 +285,9 @@ func createUpdate(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"error": "NewUpdateDataDevice not created"}`))
 		return
 	}
+	b, err := json.Marshal(upDevice)
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
 }
 
 /**

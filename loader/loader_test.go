@@ -2,13 +2,14 @@ package loader
 
 import (
 	"encoding/json"
+	"github.com/boltdb/bolt"
 	"reflect"
 	"testing"
 )
 
 func TestLoadData(t *testing.T) {
 	type args struct {
-		dir string
+		db *bolt.DB
 	}
 	tests := []struct {
 		name string
@@ -19,14 +20,14 @@ func TestLoadData(t *testing.T) {
 			// TODO: Add test cases.
 			"test1",
 			args{
-				"/tmp/all",
+				nil,
 			},
 			nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LoadData(tt.args.dir); !reflect.DeepEqual(got, tt.want) {
+			if got := LoadData(tt.args.db); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LoadData() = %v, want %v", got, tt.want)
 				for _, v := range *got {
 					t.Errorf("data: %v", v)

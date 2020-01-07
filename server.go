@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"time"
@@ -13,14 +14,46 @@ import (
 )
 
 var (
-	dir     string
-	pathdb  string
-	files   datastore.FileStore
-	updates updatedata.UpdateStore
+	dir         string
+	pathdb      string
+	pathfilesdb string
+	files       datastore.FileStore
+	updates     updatedata.UpdateStore
 )
 
 const (
-	listensocket = "0.0.0.0:8000"
+	listensocket = "127.0.0.1:8000"
+	formFiledata = `<html>
+    <head>
+    <title></title>
+    </head>
+    <body>
+		<form action="/updatevoc/api/v2/files" enctype="multipart/form-data" method="post">
+			<div>
+				<label>description:</label>
+				<input type="text" name="description">
+			</div>	
+			<div>
+				<label>version:</label>
+				<input type="text" name="version">
+			</div>
+			<div>
+				<label>reference:</label>
+				<input type="number" name="reference">
+			</div>
+			<div>
+				<label>path:</label>
+				<input type="text" name="path">
+			</div>
+			<div>
+				<input type="file" name="fileToUpload" id="fileToUpload">
+			</div>
+			<div>
+				<input type="submit" value="Upload">
+			</div>
+        </form>
+    </body>
+</html>`
 )
 
 func timeTrack(start time.Time, name string) {
@@ -31,7 +64,8 @@ func timeTrack(start time.Time, name string) {
 func init() {
 	defer timeTrack(time.Now(), "file load")
 	flag.StringVar(&dir, "dir", "/data/all", "the directory to serve files from. Defaults to the current dir")
-	flag.StringVar(&pathdb, "pathdb", "/data/updates.db", "path to updates database")
+	flag.StringVar(&pathdb, "pathupdatesdb", "/data/updates.db", "path to updates database")
+	flag.StringVar(&pathfilesdb, "pathfilesdb", "/data/files.db", "path to files database")
 	files = &datastore.Files{}
 	updates = &updatedata.UpdateData{}
 
@@ -39,7 +73,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	files.Initialize(dir)
+	files.Initialize(pathfilesdb)
 	updates.Initialize(pathdb)
 
 	r := mux.NewRouter()
@@ -66,7 +100,7 @@ func main() {
 
 	apiv2 := r.PathPrefix("/updatevoc/api/v2").Subrouter()
 	apiv2.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "api v2")
+
 	})
 	apiv2.HandleFunc("/files/device/{devicename}", searchByDeviceName).Methods(http.MethodGet)
 	apiv2.HandleFunc("/files/md5/{md5}", searchByMD5).Methods(http.MethodGet)
@@ -75,6 +109,19 @@ func main() {
 	apiv2.HandleFunc("/updates/device/{devicename}", searchUpdateByDeviceName).Methods(http.MethodGet)
 	apiv2.HandleFunc("/updates/file/{md5}", searchUpdateByFile).Methods(http.MethodGet)
 	apiv2.HandleFunc("/updates", createUpdate).Methods(http.MethodPost)
+
+	uploadfile := r.PathPrefix("/updatevoc/upload").Subrouter()
+	uploadfile.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		templateForm, _ := template.New("uploadfile").Parse(formFiledata)
+		if err := templateForm.Execute(w, nil); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
 
 	srv := &http.Server{
 		Handler: r,
