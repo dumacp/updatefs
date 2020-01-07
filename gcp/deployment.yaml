@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: updatevoc
-          image: ccamilozt/updatefs:1.15
+          image: ccamilozt/updatefs:1.16
           ports:
             - containerPort: 8000
             - containerPort: 22

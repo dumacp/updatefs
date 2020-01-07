@@ -191,7 +191,7 @@ func createUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	date, _ := strconv.Atoi(r.FormValue("date"))
-	filemd5 := r.FormValue("date")
+	filemd5 := r.FormValue("filemd5")
 	devicename := r.FormValue("devicename")
 	ipclient := r.RemoteAddr
 	filedata := r.FormValue("filedata")

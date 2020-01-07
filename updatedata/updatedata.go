@@ -213,7 +213,7 @@ func (up *UpdateData) SearchUpdateDataDevice(devicename []byte, date, limit, ski
 
 		it := bkdevices.Cursor()
 		ki, vi := it.Last()
-		if ki != nil {
+		if ki == nil {
 			return nil
 		}
 		appendFunc := func(value []byte) error {
@@ -250,7 +250,7 @@ func (up *UpdateData) SearchUpdateDataDevice(devicename []byte, date, limit, ski
 func (up *UpdateData) SearchUpdateDataFile(filemd5 []byte, date, limit, skip int) ([]*Updatedatafile, error) {
 	updatesData := make([]*Updatedatafile, 0)
 	if err := up.db.View(func(tx *bolt.Tx) error {
-		bk := tx.Bucket([]byte(bucketupdatesdevicesDate))
+		bk := tx.Bucket([]byte(bucketupdatesfilesDate))
 		if bk == nil {
 			return bolt.ErrBucketNotFound
 		}
@@ -261,7 +261,7 @@ func (up *UpdateData) SearchUpdateDataFile(filemd5 []byte, date, limit, skip int
 
 		it := bkdevices.Cursor()
 		ki, vi := it.Last()
-		if ki != nil {
+		if ki == nil {
 			return nil
 		}
 		appendFunc := func(value []byte) error {
