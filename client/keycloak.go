@@ -24,10 +24,11 @@ var serverkey keycloak.Keycloak
 func keycloakinit() error {
 
 	config := &keycloak.ServerConfig{
-		Url:         keycloakurl,
-		ClientID:    clientid,
-		RedirectUrl: redirecturl,
-		Realm:       realm,
+		Url:          keycloakurl,
+		ClientID:     clientid,
+		ClientSecret: clientSecret,
+		RedirectUrl:  redirecturl,
+		Realm:        realm,
 	}
 	if ctx == nil {
 		ctx = context.Background()
