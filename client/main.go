@@ -99,6 +99,7 @@ func main() {
 	// }
 
 	filedata := new(loader.FileData)
+	filedata.Ref = -1
 	if err := db.View(func(tx *bolt.Tx) error {
 
 		bk := tx.Bucket([]byte("updates"))
