@@ -134,7 +134,7 @@ func main() {
 		refSystem = -1
 	} else {
 		if refSystem, err = strconv.Atoi(string(firmwareV)); err != nil {
-			refSystem = 1
+			refSystem = -1
 		}
 	}
 	if filedata.Ref < refSystem {
