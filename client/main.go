@@ -1,15 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 
@@ -34,6 +33,7 @@ const (
 	fileserverdir   = "updatevoc/static"
 	pathupdatefile  = "/SD/update/migracion.zip"
 	pathfirmwareRef = "/usr/include/firmware-ne"
+	pathenvfile     = "/usr/include/serial-dev"
 )
 
 func init() {
@@ -54,6 +54,20 @@ func main() {
 		log.Fatalln(err)
 	}
 	defer db.Close()
+
+	envdev := make(map[string]string)
+	if fileenv, err := os.Open(pathenvfile); err != nil {
+		log.Printf("error: reading file env, %s", err)
+	} else {
+		scanner := bufio.NewScanner(fileenv)
+		for scanner.Scan() {
+			line := scanner.Text()
+			split := strings.Split(line, "=")
+			if len(split) > 1 {
+				envdev[split[0]] = split[1]
+			}
+		}
+	}
 
 	//TODO: load device data
 	// device := new(devicedata)
@@ -130,17 +144,18 @@ func main() {
 		}
 	}
 
-	var refSystem int
-	if firmwareV, err := ioutil.ReadFile(pathfirmwareRef); err != nil {
-		refSystem = -1
-	} else {
-		if refSystem, err = strconv.Atoi(string(firmwareV)); err != nil {
-			refSystem = -1
-		}
-	}
-	if filedata.Ref < refSystem {
-		filedata.Ref = refSystem
-	}
+	//TODO: is this necesary?
+	// var refSystem int
+	// if firmwareV, err := ioutil.ReadFile(pathfirmwareRef); err != nil {
+	// 	refSystem = -1
+	// } else {
+	// 	if refSystem, err = strconv.Atoi(string(firmwareV)); err != nil {
+	// 		refSystem = -1
+	// 	}
+	// }
+	// if filedata.Ref < refSystem {
+	// 	filedata.Ref = refSystem
+	// }
 
 	var groupname string
 	var client *http.Client
@@ -195,6 +210,11 @@ func main() {
 		hostname, err := os.Hostname()
 		if err != nil {
 			log.Fatalf("Error: there is not hostname! %s", err)
+		}
+		if v, ok := envdev["sn-dev"]; ok {
+			if len(v) > 0 {
+				hostname = v
+			}
 		}
 
 		store, err := NewRequestFilesByDevicename(client, urlin, hostname, int(filedata.Date), 1, 0)
