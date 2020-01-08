@@ -99,10 +99,10 @@ func LoadData(db *bolt.DB) *[]*FileData {
 		if err := bk.ForEach(func(k []byte, v []byte) error {
 			if k != nil {
 				filed := new(FileData)
-
 				if err := json.Unmarshal(v, filed); err != nil {
 					return err
 				}
+				log.Printf("filed: %+v", filed)
 				ret = append(ret, filed)
 			}
 			return nil
