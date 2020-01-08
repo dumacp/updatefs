@@ -237,7 +237,7 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	filed.FilePath = filePath
+	filed.FilePath, _ = filepath.Rel(dir, filePath)
 	filed.Name = filepath.Base(filePath)
 	filed.ID = uuid.New().String()
 	filed.Date = time.Now().Unix()
