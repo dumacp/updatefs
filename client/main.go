@@ -219,7 +219,7 @@ func main() {
 			if len(v) > 0 && v[len(v)-1] == '"' {
 				v = v[:len(v)-1]
 			}
-			if len(v) > 0 {
+			if len(v) > 0 && v[0] != '"' {
 				hostname = v
 			}
 		}
