@@ -62,6 +62,7 @@ func main() {
 		scanner := bufio.NewScanner(fileenv)
 		for scanner.Scan() {
 			line := scanner.Text()
+			log.Println(line)
 			split := strings.Split(line, "=")
 			if len(split) > 1 {
 				envdev[split[0]] = split[1]

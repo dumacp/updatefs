@@ -102,7 +102,7 @@ func main() {
 
 	apiv2 := r.PathPrefix("/updatevoc/api/v2").Subrouter()
 	apiv2.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
+		fmt.Fprintln(w, "api v2")
 	})
 	apiv2.HandleFunc("/files/device/{devicename}", searchByDeviceName).Methods(http.MethodGet)
 	apiv2.HandleFunc("/files/md5/{md5}", searchByMD5).Methods(http.MethodGet)
