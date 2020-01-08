@@ -269,7 +269,7 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func createUpdate(w http.ResponseWriter, r *http.Request) {
+func deleteFiles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
 	if err != nil {
@@ -278,11 +278,22 @@ func createUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	date, _ := strconv.Atoi(r.FormValue("date"))
-	filemd5 := r.FormValue("filemd5")
-	devicename := r.FormValue("devicename")
-	ipclient := r.RemoteAddr
-	filedata := r.FormValue("filedata")
+	roleb := r.FormValue("role")
+	var rolei interface{}
+
+	if err := json.Unmarshal([]byte(roleb), rolei); err != nil {
+		log.Panicln(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "value array files not parsed"}`))
+		return
+	}
+
+	switch vt := rolei.(type) {
+	case []string:
+		for _, v := range vt {
+
+		}
+	}
 
 	filed := new(loader.FileData)
 

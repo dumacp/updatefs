@@ -56,6 +56,22 @@ const (
         </form>
     </body>
 </html>`
+	formDeleteFile = `<!DOCTYPE html>
+	<html>
+	<body>
+	
+	<h1>Show currents files:</h1>
+	
+	<form action="/updatevoc/api/v2/files/delete" enctype="multipart/form-data" method="post">
+	{{range .Store}}
+
+		<input type="checkbox" name="role[]" value="{{.ID}}">{{.Name}}<br>	  
+	{{end}}
+		<input type="submit" value="Submit">
+	</form>
+	
+	</body>
+	</html>`
 )
 
 func timeTrack(start time.Time, name string) {
@@ -110,6 +126,7 @@ func main() {
 		fmt.Fprintln(w, "api v2")
 	})
 	apiv2.HandleFunc("/files/device/{devicename}", searchByDeviceName).Methods(http.MethodGet)
+	apiv2.HandleFunc("/files/delete", deleteFiles).Methods(http.MethodPost)
 	apiv2.HandleFunc("/files/md5/{md5}", searchByMD5).Methods(http.MethodGet)
 	apiv2.HandleFunc("/files", allDevices).Methods(http.MethodGet)
 	apiv2.HandleFunc("/files", createFile).Methods(http.MethodPost)
@@ -125,6 +142,18 @@ func main() {
 		}
 		templateForm, _ := template.New("uploadfile").Parse(formFiledata)
 		if err := templateForm.Execute(w, nil); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
+	deletefiles := r.PathPrefix("/updatevoc/delete").Subrouter()
+	deletefiles.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		templateForm, _ := template.New("deletefiles").Parse(formDeleteFile)
+		if err := templateForm.Execute(w, *files.AllData()); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

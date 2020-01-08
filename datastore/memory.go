@@ -107,7 +107,7 @@ func (b *Files) CreateFile(file *loader.FileData) bool {
 		return false
 	}
 
-	*b.Store = append(*b.Store, file)
+	b.Store = loader.LoadData(b.db)
 	return true
 }
 
