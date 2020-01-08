@@ -209,7 +209,12 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	version := r.FormValue("version")
 	path := r.FormValue("path")
 
-	filePath := filepath.Clean(fmt.Sprintf("%s/%s/migracion%s.zip", dir, filepath.Clean(path), version))
+	filePath := filepath.Clean(fmt.Sprintf("%s/migracion_%s.zip", dir, version))
+	if _, err := os.Stat(filePath); err == os.ErrNotExist {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf(`"error": "file upload already exist, %q"}`, filePath)))
+		return
+	}
 	data, err := ioutil.ReadAll(fileupload)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -227,12 +232,12 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	filed := new(loader.FileData)
-	for _, v := range strings.Split(filepath.Clean(path), "/") {
-		if len(v) > 0 {
-			if len(v) == 1 && v == "." {
-				filed.DeviceName = append(filed.DeviceName, "all")
-				continue
-			}
+	if len(path) <= 0 {
+		filed.DeviceName = append(filed.DeviceName, "all")
+	} else {
+		pathtrim := strings.TrimSpace(path)
+		paths := strings.Split(pathtrim, ",")
+		for _, v := range paths {
 			filed.DeviceName = append(filed.DeviceName, v)
 		}
 	}

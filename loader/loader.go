@@ -103,7 +103,7 @@ func LoadData(db *bolt.DB) *[]*FileData {
 					return err
 				}
 				log.Printf("filed: %+v", filed)
-				ret = append(ret, filed)
+				//ret = append(ret, filed)
 			}
 			return nil
 		}); err != nil {

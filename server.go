@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dumacp/updatefs/datastore"
@@ -64,7 +65,7 @@ func timeTrack(start time.Time, name string) {
 
 func init() {
 	defer timeTrack(time.Now(), "file load")
-	flag.StringVar(&dir, "dir", "/data/all", "the directory to serve files from. Defaults to the current dir")
+	flag.StringVar(&dir, "dir", "/data/all/files", "the directory to serve files from. Defaults to the current dir")
 	flag.StringVar(&pathdb, "pathupdatesdb", "/data/all/updates.db", "path to updates database")
 	flag.StringVar(&pathfilesdb, "pathfilesdb", "/data/all/files.db", "path to files database")
 	flag.StringVar(&socket, "listensocket", listensocket, "socket to listen")
@@ -77,6 +78,10 @@ func main() {
 	flag.Parse()
 	files.Initialize(pathfilesdb)
 	updates.Initialize(pathdb)
+
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		log.Fatalf("error: cannot create dir %q", dir)
+	}
 
 	r := mux.NewRouter()
 	log.Println("filedata api")
