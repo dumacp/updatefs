@@ -208,7 +208,7 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	version := r.FormValue("version")
 	path := r.FormValue("path")
 
-	filePath := filepath.Clean(fmt.Sprintf("%s/%s/migracion_%s.zip", dir, filepath.Clean(path), version))
+	filePath := filepath.Clean(fmt.Sprintf("%s/%s/migracion%s.zip", dir, filepath.Clean(path), version))
 	data, err := ioutil.ReadAll(fileupload)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
