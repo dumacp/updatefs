@@ -220,6 +220,10 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	filed := new(loader.FileData)
 	for _, v := range strings.Split(filepath.Clean(path), "/") {
 		if len(v) > 0 {
+			if len(v) == 1 && v == "." {
+				filed.DeviceName = append(filed.DeviceName, "all")
+				continue
+			}
 			filed.DeviceName = append(filed.DeviceName, v)
 		}
 	}
