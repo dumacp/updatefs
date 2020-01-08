@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -213,6 +214,11 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"error": "read file upload"}`))
+		return
+	}
+	if err := os.MkdirAll(filepath.Base(filePath), 0755); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "write file data"}`))
 		return
 	}
 	if err := ioutil.WriteFile(filePath, data, 0644); err != nil {
