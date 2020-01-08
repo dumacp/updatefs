@@ -252,18 +252,17 @@ func main() {
 
 		filedatanow := (*store)[0]
 		fmt.Printf("%+v, %+v\n", filedatanow, filedata)
-		if filedatanow.Date > filedata.Date &&
-			filedatanow.Ref > filedata.Ref &&
-			(len(filedata.Md5) <= 0 ||
-				!strings.Contains(filedatanow.Md5, filedata.Md5)) {
+		if filedatanow.Date > filedata.Date && filedatanow.Ref > filedata.Ref {
+			if len(filedata.Md5) > 0 && !strings.Contains(filedatanow.Md5, filedata.Md5) {
 
-			fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
-			err := DownloadFile(fileurl, pathupdatefile)
-			if err != nil {
-				log.Printf("ERROR DownloadFile: %s", err)
-				return
+				fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
+				err := DownloadFile(fileurl, pathupdatefile)
+				if err != nil {
+					log.Printf("ERROR DownloadFile: %s", err)
+					return
+				}
+				log.Printf("UPDATE FILE DOWNLOAD: %+v", filedatanow)
 			}
-			log.Printf("UPDATE FILE DOWNLOAD: %+v", filedatanow)
 
 			if filedatanows, err := json.Marshal(filedatanow); err == nil {
 				if err := NewUpdateByDevicename(
