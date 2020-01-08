@@ -217,6 +217,7 @@ func main() {
 				hostname = v
 			}
 		}
+		log.Printf("hostname: %s", hostname)
 
 		store, err := NewRequestFilesByDevicename(client, urlin, hostname, int(filedata.Date), 1, 0)
 		if err != nil {
