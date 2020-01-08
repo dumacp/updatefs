@@ -33,6 +33,8 @@ spec:
             - --enable-default-deny=true
             - --resources=uri=/updatevoc/api/v2/*|roles=DEVICE_VOC
             - --resources=uri=/updatevoc/static*|roles=DEVICE_VOC
+            - --resources=uri=/updatevoc/upload*|roles=ORGANIZATION_WRITE
+            - --resources=uri=/updatevoc/api/v2/files|roles=ORGANIZATION_WRITE|methods=POST
             - --resources=uri=/static*|white-listed=true
             - --resources=uri=/updatevoc/api/v1/*|white-listed=true
             - --headers=myheader1=value1
