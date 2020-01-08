@@ -19,10 +19,11 @@ var (
 	pathfilesdb string
 	files       datastore.FileStore
 	updates     updatedata.UpdateStore
+	socket      string
 )
 
 const (
-	listensocket = "127.0.0.1:8000"
+	listensocket = "0.0.0.0:8000"
 	formFiledata = `<html>
     <head>
     <title></title>
@@ -66,6 +67,7 @@ func init() {
 	flag.StringVar(&dir, "dir", "/data/all", "the directory to serve files from. Defaults to the current dir")
 	flag.StringVar(&pathdb, "pathupdatesdb", "/data/updates.db", "path to updates database")
 	flag.StringVar(&pathfilesdb, "pathfilesdb", "/data/files.db", "path to files database")
+	flag.StringVar(&socket, "listensocket", listensocket, "socket to listen")
 	files = &datastore.Files{}
 	updates = &updatedata.UpdateData{}
 
@@ -125,7 +127,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler: r,
-		Addr:    listensocket,
+		Addr:    socket,
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
