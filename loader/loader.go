@@ -92,7 +92,7 @@ func LoadData(db *bolt.DB) *[]*FileData {
 	ret := make([]*FileData, 0, 0)
 
 	if err := db.View(func(tx *bolt.Tx) error {
-		bk, _ := tx.CreateBucketIfNotExists([]byte(Bucketfiles))
+		bk := tx.Bucket([]byte(Bucketfiles))
 		if bk == nil {
 			return bolt.ErrBucketNotFound
 		}
