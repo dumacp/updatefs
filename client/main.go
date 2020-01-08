@@ -213,10 +213,10 @@ func main() {
 			log.Fatalf("Error: there is not hostname! %s", err)
 		}
 		if v, ok := envdev["sn-dev"]; ok {
-			if len(v) > 1 && v[0] == '"' {
+			if len(v) > 0 && v[0] == '"' {
 				v = v[1:]
 			}
-			if len(v) > 1 && v[len(v)-1] == '"' {
+			if len(v) > 0 && v[len(v)-1] == '"' {
 				v = v[:len(v)-1]
 			}
 			if len(v) > 0 {
