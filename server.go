@@ -65,8 +65,8 @@ func timeTrack(start time.Time, name string) {
 func init() {
 	defer timeTrack(time.Now(), "file load")
 	flag.StringVar(&dir, "dir", "/data/all", "the directory to serve files from. Defaults to the current dir")
-	flag.StringVar(&pathdb, "pathupdatesdb", "/data/updates.db", "path to updates database")
-	flag.StringVar(&pathfilesdb, "pathfilesdb", "/data/files.db", "path to files database")
+	flag.StringVar(&pathdb, "pathupdatesdb", "/data/all/updates.db", "path to updates database")
+	flag.StringVar(&pathfilesdb, "pathfilesdb", "/data/all/files.db", "path to files database")
 	flag.StringVar(&socket, "listensocket", listensocket, "socket to listen")
 	files = &datastore.Files{}
 	updates = &updatedata.UpdateData{}

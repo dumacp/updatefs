@@ -211,11 +211,14 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	filePath := filepath.Clean(fmt.Sprintf("%s/%s/migracion_%s.zip", dir, filepath.Clean(path), version))
 	data, err := ioutil.ReadAll(fileupload)
 	if err != nil {
-		if err := ioutil.WriteFile(filePath, data, 0644); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"error": "write file data"}`))
-			return
-		}
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "read file upload"}`))
+		return
+	}
+	if err := ioutil.WriteFile(filePath, data, 0644); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "write file data"}`))
+		return
 	}
 	filed := new(loader.FileData)
 	for _, v := range strings.Split(filepath.Clean(path), "/") {
