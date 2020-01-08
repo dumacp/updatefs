@@ -89,7 +89,7 @@ const (
 //LoadData Loda initial metadata
 func LoadData(db *bolt.DB) *[]*FileData {
 
-	ret := make([]*FileData, 0)
+	ret := make([]*FileData, 0, 0)
 
 	if err := db.View(func(tx *bolt.Tx) error {
 		bk, _ := tx.CreateBucketIfNotExists([]byte(Bucketfiles))
