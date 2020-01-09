@@ -257,7 +257,7 @@ func main() {
 			if !filedatanow.Override && lastFiledata != nil {
 				break
 			}
-			lastFiledata = v
+			lastFiledata = &v
 			fmt.Printf("%+v, %+v\n", filedatanow, filedata)
 			if filedatanow.Date > filedata.Date && (filedatanow.Override || filedatanow.Ref > filedata.Ref) {
 				if len(filedata.Md5) > 0 &&
