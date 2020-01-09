@@ -261,6 +261,7 @@ func main() {
 						log.Print("ERROR old pathupdatefile exits")
 						return
 					}
+					log.Printf("override pathupdatefile!")
 				}
 
 				fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
@@ -299,6 +300,7 @@ func main() {
 			} else {
 				log.Printf("update data lastupdate!")
 				if filedatanow.ForceReboot {
+					log.Printf("force reboot!")
 					syscall.Sync()
 					syscall.Reboot(syscall.LINUX_REBOOT_CMD_RESTART)
 				}
