@@ -254,7 +254,8 @@ func main() {
 		filedatanow := (*store)[0]
 		fmt.Printf("%+v, %+v\n", filedatanow, filedata)
 		if filedatanow.Date > filedata.Date && (filedatanow.Override || filedatanow.Ref > filedata.Ref) {
-			if len(filedata.Md5) > 0 && !strings.Contains(filedatanow.Md5, filedata.Md5) {
+			if len(filedata.Md5) > 0 &&
+				(!strings.Contains(filedatanow.Md5, filedata.Md5) || filedatanow.Override) {
 
 				if _, err := os.Stat(pathupdatefile); err == nil {
 					if !filedatanow.Override {
