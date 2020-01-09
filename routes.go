@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/dumacp/updatefs/loader"
+	"github.com/dumacp/updatefs/updatedata"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
@@ -207,6 +208,8 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	ref, _ := strconv.Atoi(r.FormValue("reference"))
 	version := r.FormValue("version")
 	path := r.FormValue("path")
+	reboot := r.FormValue("reboot")
+	override := r.FormValue("override")
 
 	filePath := filepath.Clean(fmt.Sprintf("%s/migracion_%s.zip", dir, version))
 	if _, err := os.Stat(filePath); err == os.ErrNotExist {
@@ -250,6 +253,12 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	filed.Description = desc
 	filed.Ref = ref
 	filed.Version = version
+	if strings.Contains(reboot, "yes") {
+		filed.ForceReboot = true
+	}
+	if strings.Contains(override, "yes") {
+		filed.Override = true
+	}
 
 	filev, err := json.Marshal(filed)
 	if err != nil {
@@ -268,6 +277,51 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func createUpdate(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	err := r.ParseForm()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "body not parsed"}`))
+		return
+	}
+
+	date, _ := strconv.Atoi(r.FormValue("date"))
+	filemd5 := r.FormValue("filemd5")
+	devicename := r.FormValue("devicename")
+	ipclient := r.RemoteAddr
+	filedata := r.FormValue("filedata")
+
+	filed := new(loader.FileData)
+
+	if err := json.Unmarshal([]byte(filedata), filed); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "value filedata not parsed"}`))
+		return
+	}
+	upDevice := &updatedata.Updatedatadevice{
+		ID:        uuid.New().String(),
+		Date:      date,
+		Filedata:  filed,
+		IPRequest: ipclient,
+	}
+
+	if err := updates.NewUpdateDataDevice([]byte(devicename), []byte(filemd5), upDevice); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "NewUpdateDataDevice not created"}`))
+		return
+	}
+	b, err := json.Marshal(upDevice)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error": "error marshalling create update"}`))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
+}
+
 func deleteFiles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
@@ -277,23 +331,13 @@ func deleteFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	roleb := r.FormValue("role")
-	var rolei interface{}
-
-	if err := json.Unmarshal([]byte(roleb), rolei); err != nil {
-		log.Panicln(err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "value array files not parsed"}`))
-		return
-	}
+	filess := r.Form["files"]
+	log.Printf("%+v", filess)
 
 	listfilesdel := make([]string, 0)
-	switch vt := rolei.(type) {
-	case []string:
-		for _, v := range vt {
-			if files.DeleteFile(v) {
-				listfilesdel = append(listfilesdel, v)
-			}
+	for _, v := range filess {
+		if files.DeleteFile(v) {
+			listfilesdel = append(listfilesdel, v)
 		}
 	}
 	b, err := json.Marshal(listfilesdel)

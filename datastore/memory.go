@@ -133,6 +133,8 @@ func (b *Files) DeleteFile(id string) bool {
 				pathfile := fmt.Sprintf("%s/%s", b.pathbase, filed.FilePath)
 				if err := os.Remove(pathfile); err != nil {
 					log.Printf("error: remove file path")
+				} else {
+					log.Printf("info: remove file path, %s", pathfile)
 				}
 			}
 		}
@@ -144,6 +146,7 @@ func (b *Files) DeleteFile(id string) bool {
 		log.Printf("error: delete file data in database, %s", err)
 		return false
 	}
+	b.Store = loader.LoadData(b.db)
 	return true
 }
 

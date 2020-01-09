@@ -48,6 +48,14 @@ const (
 				<input type="text" name="path">
 			</div>
 			<div>
+				<label>force reboot?:</label>
+				<input type="checkbox" name="reboot" value="yes">
+			</div>
+			<div>
+				<label>override?:</label>
+				<input type="checkbox" name="override" value="yes">
+			</div>
+			<div>
 				<input type="file" name="fileToUpload" id="fileToUpload">
 			</div>
 			<div>
@@ -62,10 +70,10 @@ const (
 	
 	<h1>Show currents files:</h1>
 	
-	<form action="/updatevoc/api/v2/files/delete" enctype="multipart/form-data" method="post">
-	{{range .Store}}
+	<form action="/updatevoc/api/v2/files/delete" method="post">
+	{{range .}}
 
-		<input type="checkbox" name="role[]" value="{{.ID}}">{{.Name}}<br>	  
+		<input type="checkbox" name="files" value="{{.Md5}}">{{.Name}}<br>	  
 	{{end}}
 		<input type="submit" value="Submit">
 	</form>
@@ -153,7 +161,10 @@ func main() {
 			return
 		}
 		templateForm, _ := template.New("deletefiles").Parse(formDeleteFile)
-		if err := templateForm.Execute(w, *files.AllData()); err != nil {
+		store := files.AllData()
+		log.Printf("%s", *store)
+		if err := templateForm.Execute(w, *store); err != nil {
+			log.Printf("error: tmeplate delete, %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

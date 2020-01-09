@@ -80,6 +80,8 @@ type FileData struct {
 	Description string   `json:"desc"`
 	Ref         int      `json:"ref"`
 	Version     string   `json:"version"`
+	ForceReboot bool     `json:"reboot"`
+	Override    bool     `json:"override"`
 }
 
 const (

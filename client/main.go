@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/dumacp/updatefs/loader"
@@ -252,8 +253,15 @@ func main() {
 
 		filedatanow := (*store)[0]
 		fmt.Printf("%+v, %+v\n", filedatanow, filedata)
-		if filedatanow.Date > filedata.Date && filedatanow.Ref > filedata.Ref {
+		if filedatanow.Date > filedata.Date && (filedatanow.Override || filedatanow.Ref > filedata.Ref) {
 			if len(filedata.Md5) > 0 && !strings.Contains(filedatanow.Md5, filedata.Md5) {
+
+				if _, err := os.Stat(pathupdatefile); err == nil {
+					if !filedatanow.Override {
+						log.Print("ERROR old pathupdatefile exits")
+						return
+					}
+				}
 
 				fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
 				err := DownloadFile(fileurl, pathupdatefile)
@@ -290,6 +298,11 @@ func main() {
 				log.Printf("ERROR in update data lastupdate: %s", err)
 			} else {
 				log.Printf("update data lastupdate!")
+				if filedatanow.ForceReboot {
+					syscall.Sync()
+					syscall.Reboot(syscall.LINUX_REBOOT_CMD_RESTART)
+				}
+
 			}
 		}
 	}
