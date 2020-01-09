@@ -18,7 +18,7 @@ const (
 )
 
 //NewRequestFilesByDevicename function valid a complete recorrido in metroplo WS
-func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, date, limit, skip int) (*[]loader.FileData, error) {
+func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, date, limit, skip int) (*[]*loader.FileData, error) {
 
 	urlGet := fmt.Sprintf("%s/%s/%s/%s", urlin, apiversion, apidevice, devicename)
 
@@ -61,12 +61,12 @@ func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, 
 		return nil, nil
 	}
 
-	var store []loader.FileData
-	if err := json.Unmarshal(body, &store); err != nil {
+	store := new([]*loader.FileData)
+	if err := json.Unmarshal(body, store); err != nil {
 		return nil, err
 	}
 
-	return &store, nil
+	return store, nil
 
 	//return http.DefaultClient.Do(req)
 }

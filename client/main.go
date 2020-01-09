@@ -251,61 +251,68 @@ func main() {
 			}
 		}
 
-		filedatanow := (*store)[0]
-		fmt.Printf("%+v, %+v\n", filedatanow, filedata)
-		if filedatanow.Date > filedata.Date && (filedatanow.Override || filedatanow.Ref > filedata.Ref) {
-			if len(filedata.Md5) > 0 &&
-				(!strings.Contains(filedatanow.Md5, filedata.Md5) || filedatanow.Override) {
+		var lastFiledata *loader.FileData
+		for _, v := range *store {
+			filedatanow := v
+			if !filedatanow.Override && lastFiledata != nil {
+				break
+			}
+			lastFiledata = v
+			fmt.Printf("%+v, %+v\n", filedatanow, filedata)
+			if filedatanow.Date > filedata.Date && (filedatanow.Override || filedatanow.Ref > filedata.Ref) {
+				if len(filedata.Md5) > 0 &&
+					(!strings.Contains(filedatanow.Md5, filedata.Md5) || filedatanow.Override) {
 
-				if _, err := os.Stat(pathupdatefile); err == nil {
-					if !filedatanow.Override {
-						log.Print("ERROR old pathupdatefile exits")
+					if _, err := os.Stat(pathupdatefile); err == nil {
+						if !filedatanow.Override {
+							log.Print("ERROR old pathupdatefile exits")
+							return
+						}
+						log.Printf("override pathupdatefile!")
+					}
+
+					fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
+					err := DownloadFile(fileurl, pathupdatefile)
+					if err != nil {
+						log.Printf("ERROR DownloadFile: %s", err)
 						return
 					}
-					log.Printf("override pathupdatefile!")
+					log.Printf("UPDATE FILE DOWNLOAD: %+v", filedatanow)
 				}
 
-				fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
-				err := DownloadFile(fileurl, pathupdatefile)
-				if err != nil {
-					log.Printf("ERROR DownloadFile: %s", err)
-					return
+				if filedatanows, err := json.Marshal(filedatanow); err == nil {
+					if err := NewUpdateByDevicename(
+						client,
+						urlin,
+						hostname,
+						filedatanow.Md5,
+						string(filedatanows),
+						int(time.Now().Unix()),
+					); err != nil {
+						log.Printf("error NewUpdateByDevicename: %s", err)
+					}
 				}
-				log.Printf("UPDATE FILE DOWNLOAD: %+v", filedatanow)
-			}
+				if err := db.Update(func(tx *bolt.Tx) error {
+					bk := tx.Bucket([]byte("updates"))
+					if bk == nil {
+						return bolt.ErrBucketNotFound
+					}
+					val, err := json.Marshal(filedatanow)
+					if err != nil {
+						return err
+					}
+					return bk.Put([]byte("lastupdate"), val)
+				}); err != nil {
+					log.Printf("ERROR in update data lastupdate: %s", err)
+				} else {
+					log.Printf("update data lastupdate!")
+					if filedatanow.ForceReboot {
+						log.Printf("force reboot!")
+						syscall.Sync()
+						syscall.Reboot(syscall.LINUX_REBOOT_CMD_RESTART)
+					}
 
-			if filedatanows, err := json.Marshal(filedatanow); err == nil {
-				if err := NewUpdateByDevicename(
-					client,
-					urlin,
-					hostname,
-					filedatanow.Md5,
-					string(filedatanows),
-					int(time.Now().Unix()),
-				); err != nil {
-					log.Printf("error NewUpdateByDevicename: %s", err)
 				}
-			}
-			if err := db.Update(func(tx *bolt.Tx) error {
-				bk := tx.Bucket([]byte("updates"))
-				if bk == nil {
-					return bolt.ErrBucketNotFound
-				}
-				val, err := json.Marshal(filedatanow)
-				if err != nil {
-					return err
-				}
-				return bk.Put([]byte("lastupdate"), val)
-			}); err != nil {
-				log.Printf("ERROR in update data lastupdate: %s", err)
-			} else {
-				log.Printf("update data lastupdate!")
-				if filedatanow.ForceReboot {
-					log.Printf("force reboot!")
-					syscall.Sync()
-					syscall.Reboot(syscall.LINUX_REBOOT_CMD_RESTART)
-				}
-
 			}
 		}
 	}
