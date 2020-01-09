@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"syscall"
 	"time"
@@ -214,14 +215,23 @@ func main() {
 			log.Fatalf("Error: there is not hostname! %s", err)
 		}
 		if v, ok := envdev["sn-dev"]; ok {
-			if len(v) > 0 && v[0] == '"' {
-				v = v[1:]
+			// if len(v) > 0 && v[0] == '"' {
+			// 	v = v[1:]
+			// }
+			// if len(v) > 0 && v[len(v)-1] == '"' {
+			// 	v = v[:len(v)-1]
+			// }
+			// if len(v) > 0 && v[0] != '"' {
+			// 	hostname = v
+			// }
+			reg, err := regexp.Compile("[^a-zA-Z0-9\\-_\\.]+")
+			if err != nil {
+				log.Println(err)
 			}
-			if len(v) > 0 && v[len(v)-1] == '"' {
-				v = v[:len(v)-1]
-			}
-			if len(v) > 0 && v[0] != '"' {
-				hostname = v
+			processdString := reg.ReplaceAllString(v, "")
+			log.Println(processdString)
+			if len(processdString) > 0 {
+				hostname = processdString
 			}
 		}
 		log.Printf("hostname: %s", hostname)
@@ -272,7 +282,7 @@ func main() {
 					}
 
 					fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
-					err := DownloadFile(fileurl, pathupdatefile)
+					err := DownloadFile(client, fileurl, pathupdatefile)
 					if err != nil {
 						log.Printf("ERROR DownloadFile: %s", err)
 						return
