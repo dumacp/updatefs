@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/dumacp/updatefs/loader"
-	"github.com/dumacp/updatefs/updatedata"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
@@ -288,33 +287,21 @@ func deleteFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	listfilesdel := make([]string, 0)
 	switch vt := rolei.(type) {
 	case []string:
 		for _, v := range vt {
-
+			if files.DeleteFile(v) {
+				listfilesdel = append(listfilesdel, v)
+			}
 		}
 	}
-
-	filed := new(loader.FileData)
-
-	if err := json.Unmarshal([]byte(filedata), filed); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "value filedata not parsed"}`))
+	b, err := json.Marshal(listfilesdel)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error": "error marshalling data files delete"}`))
 		return
 	}
-	upDevice := &updatedata.Updatedatadevice{
-		ID:        uuid.New().String(),
-		Date:      date,
-		Filedata:  filed,
-		IPRequest: ipclient,
-	}
-
-	if err := updates.NewUpdateDataDevice([]byte(devicename), []byte(filemd5), upDevice); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "NewUpdateDataDevice not created"}`))
-		return
-	}
-	b, err := json.Marshal(upDevice)
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
 }

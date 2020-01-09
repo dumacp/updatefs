@@ -2,7 +2,9 @@ package datastore
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/boltdb/bolt"
@@ -11,12 +13,13 @@ import (
 
 //Files struct abour store
 type Files struct {
-	Store *[]*loader.FileData `json:"store"`
-	db    *bolt.DB
+	Store    *[]*loader.FileData `json:"store"`
+	db       *bolt.DB
+	pathbase string
 }
 
 //Initialize init database
-func (b *Files) Initialize(pathdb string) {
+func (b *Files) Initialize(pathdb, pathfiles string) {
 
 	var err error
 	b.db, err = bolt.Open(pathdb, 0644, nil)
@@ -28,6 +31,7 @@ func (b *Files) Initialize(pathdb string) {
 	for i, v := range *b.Store {
 		log.Printf("file %d: %v", i, v)
 	}
+	b.pathbase = pathfiles
 }
 
 func (b *Files) SearchDeviceName(devicename string, date, limit, skip int) *[]*loader.FileData {
@@ -116,7 +120,31 @@ func (b *Files) UpdateFile(id string, book *loader.FileData) bool {
 }
 
 func (b *Files) DeleteFile(id string) bool {
-	return false
+	if err := b.db.Update(func(tx *bolt.Tx) error {
+		bk := tx.Bucket([]byte(loader.Bucketfiles))
+		if bk == nil {
+			return bolt.ErrBucketNotFound
+		}
+		if val := bk.Get([]byte(id)); val != nil {
+			filed := new(loader.FileData)
+			if err := json.Unmarshal(val, filed); err != nil {
+				log.Printf("error: parse remove file path")
+			} else {
+				pathfile := fmt.Sprintf("%s/%s", b.pathbase, filed.FilePath)
+				if err := os.Remove(pathfile); err != nil {
+					log.Printf("error: remove file path")
+				}
+			}
+		}
+		if err := bk.Delete([]byte(id)); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		log.Printf("error: delete file data in database, %s", err)
+		return false
+	}
+	return true
 }
 
 /**

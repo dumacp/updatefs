@@ -92,7 +92,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	files.Initialize(pathfilesdb)
+	files.Initialize(pathfilesdb, dir)
 	updates.Initialize(pathdb)
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
