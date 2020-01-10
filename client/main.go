@@ -283,8 +283,23 @@ func main() {
 					}
 
 					fileurl := fmt.Sprintf("%s/%s/%s", urlin, fileserverdir, filedatanow.FilePath)
-					err := DownloadFile(client, fileurl, pathupdatefile)
-					if err != nil {
+					var errorDownload error
+					for range []int{1, 2, 3} {
+						md5sum, err := DownloadFile(client, fileurl, pathupdatefile)
+						if err != nil {
+							log.Printf("ERROR DownloadFile: %s", err)
+							errorDownload = err
+							continue
+						}
+						if !strings.Contains(filedatanow.Md5, md5sum) {
+							log.Println("ERROR DownloadFile: md5 failed")
+							errorDownload = err
+							continue
+						}
+						errorDownload = nil
+						break
+					}
+					if errorDownload != nil {
 						log.Printf("ERROR DownloadFile: %s", err)
 						return
 					}

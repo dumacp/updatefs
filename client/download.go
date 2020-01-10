@@ -2,6 +2,8 @@ package main
 
 import (
 	"archive/zip"
+	"crypto/md5"
+	"encoding/hex"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,27 +12,30 @@ import (
 // DownloadFile will download a url and store it in local filepath.
 // It writes to the destination file as it downloads it, without
 // loading the entire file into memory.
-func DownloadFile(client *http.Client, url, filepath string) error {
+func DownloadFile(client *http.Client, url, filepath string) (string, error) {
 
 	resp, err := client.Get(url)
 	if err != nil {
 		log.Printf("error: GET, %s", err)
-		return err
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("error: READ, %s", err)
-		return err
+		return "", err
 	}
 
 	if err := ioutil.WriteFile(filepath, body, 0644); err != nil {
 		log.Printf("error: WRITE, %s", err)
-		return err
+		return "", err
 	}
 
-	return nil
+	md5sum := md5.Sum(body)
+	md5s := hex.EncodeToString(md5sum[0:])
+
+	return md5s, nil
 }
 
 func readZipFile(zf *zip.File) ([]byte, error) {
