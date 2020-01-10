@@ -113,7 +113,7 @@ func (up *UpdateData) NewUpdateDataFile(filemd5, key []byte, value *Updatedatafi
 		bkDate := tx.Bucket([]byte(bucketupdatesfilesDate))
 		if bkDate == nil {
 			var err error
-			if bkDate, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesfiles)); err != nil {
+			if bkDate, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesfilesDate)); err != nil {
 				return err
 			}
 		}
