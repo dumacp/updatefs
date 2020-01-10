@@ -46,14 +46,10 @@ func DownloadFile(client *http.Client, url, filepath string) error {
 	for {
 		n, err := resp.Body.Read(buf)
 		if err != nil {
-			if err == io.ErrUnexpectedEOF {
-				continue
-			}
-			if err != io.EOF {
+			if err != io.EOF && err != io.ErrUnexpectedEOF {
 				log.Printf("error: READ, %s", err)
 				return err
 			}
-			break
 		}
 		if n <= 0 {
 			break
