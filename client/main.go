@@ -163,6 +163,32 @@ func main() {
 	var groupname string
 	var client *http.Client
 
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatalf("Error: there is not hostname! %s", err)
+	}
+	if v, ok := envdev["sn-dev"]; ok {
+		// if len(v) > 0 && v[0] == '"' {
+		// 	v = v[1:]
+		// }
+		// if len(v) > 0 && v[len(v)-1] == '"' {
+		// 	v = v[:len(v)-1]
+		// }
+		// if len(v) > 0 && v[0] != '"' {
+		// 	hostname = v
+		// }
+		reg, err := regexp.Compile("[^a-zA-Z0-9\\-_\\.]+")
+		if err != nil {
+			log.Println(err)
+		}
+		processdString := reg.ReplaceAllString(v, "")
+		log.Println(processdString)
+		if len(processdString) > 0 {
+			hostname = processdString
+		}
+	}
+	log.Printf("hostname: %s", hostname)
+
 	keycloakconn := func() error {
 		defer func() {
 			if r := recover(); r != nil {
@@ -175,7 +201,7 @@ func main() {
 				return err
 			}
 		}
-		token, err := keycloakNewToken()
+		token, err := keycloakNewToken(hostname)
 		if err != nil {
 			log.Printf("ERROR keycloak token request: %s", err)
 			return err
@@ -210,31 +236,6 @@ func main() {
 			}
 			client.CloseIdleConnections()
 		}()
-		hostname, err := os.Hostname()
-		if err != nil {
-			log.Fatalf("Error: there is not hostname! %s", err)
-		}
-		if v, ok := envdev["sn-dev"]; ok {
-			// if len(v) > 0 && v[0] == '"' {
-			// 	v = v[1:]
-			// }
-			// if len(v) > 0 && v[len(v)-1] == '"' {
-			// 	v = v[:len(v)-1]
-			// }
-			// if len(v) > 0 && v[0] != '"' {
-			// 	hostname = v
-			// }
-			reg, err := regexp.Compile("[^a-zA-Z0-9\\-_\\.]+")
-			if err != nil {
-				log.Println(err)
-			}
-			processdString := reg.ReplaceAllString(v, "")
-			log.Println(processdString)
-			if len(processdString) > 0 {
-				hostname = processdString
-			}
-		}
-		log.Printf("hostname: %s", hostname)
 
 		store, err := NewRequestFilesByDevicename(client, urlin, hostname, int(filedata.Date), 1, 0)
 		if err != nil {

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/dumacp/keycloak"
@@ -47,12 +46,12 @@ func keycloakinit() error {
 	return nil
 }
 
-func keycloakNewToken() (*oauth2.Token, error) {
+func keycloakNewToken(name string) (*oauth2.Token, error) {
 
-	name, err := os.Hostname()
-	if err != nil {
-		return nil, err
-	}
+	// name, err := os.Hostname()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	names := strings.Split(name, ".")
 
