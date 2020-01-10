@@ -212,7 +212,7 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	override := r.FormValue("override")
 
 	filePath := filepath.Clean(fmt.Sprintf("%s/migracion_%s.zip", dir, version))
-	if _, err := os.Stat(filePath); err == os.ErrNotExist {
+	if _, err := os.Stat(filePath); err == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(fmt.Sprintf(`"error": "file upload already exist, %q"}`, filePath)))
 		return
