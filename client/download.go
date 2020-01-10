@@ -35,11 +35,34 @@ func DownloadFile(client *http.Client, url, filepath string) error {
 	}
 	defer resp.Body.Close()
 
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Printf("error: COPY, %s", err)
-		return err
+	// // Write the body to file
+	// _, err = io.Copy(out, resp.Body)
+	// if err != nil {
+	// 	log.Printf("error: COPY, %s", err)
+	// 	return err
+	// }
+
+	buf := make([]byte, 1024*32)
+	for {
+		n, err := resp.Body.Read(buf)
+		if err != nil {
+			if err == io.ErrUnexpectedEOF {
+				continue
+			}
+			if err != io.EOF {
+				log.Printf("error: READ, %s", err)
+				return err
+			}
+			break
+		}
+		if n <= 0 {
+			break
+		}
+		// write a chunk
+		if _, err := out.Write(buf[:n]); err != nil {
+			log.Printf("error: WRITE, %s", err)
+			return err
+		}
 	}
 
 	return nil
