@@ -306,8 +306,19 @@ func createUpdate(w http.ResponseWriter, r *http.Request) {
 		Filedata:  filed,
 		IPRequest: ipclient,
 	}
+	upFile := &updatedata.Updatedatafile{
+		ID:        uuid.New().String(),
+		Date:      date,
+		Device:    devicename,
+		IPRequest: ipclient,
+	}
 
 	if err := updates.NewUpdateDataDevice([]byte(devicename), []byte(filemd5), upDevice); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "NewUpdateDataDevice not created"}`))
+		return
+	}
+	if err := updates.NewUpdateDataFile([]byte(filed.ID), []byte(devicename), upFile); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"error": "NewUpdateDataDevice not created"}`))
 		return
