@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -42,21 +44,30 @@ func DownloadFile(client *http.Client, url, filepath string) error {
 	// 	return err
 	// }
 
-	buf := make([]byte, 1024*32)
-	for {
-		n, err := resp.Body.Read(buf)
+	// buf := make([]byte, 1024*32)
+	// for {
+	// 	n, err := resp.Body.Read(buf)
+	// 	if err != nil {
+	// 		if err != io.EOF && err != io.ErrUnexpectedEOF {
+	// 			log.Printf("error: READ, %s", err)
+	// 			return err
+	// 		}
+	// 	}
+	// 	if n <= 0 {
+	// 		break
+	// 	}
+	// 	// write a chunk
+	// 	if _, err := out.Write(buf[:n]); err != nil {
+	// 		log.Printf("error: WRITE, %s", err)
+	// 		return err
+	// 	}
+	// }
+
+	if data, err := ioutil.ReadAll(resp.Body); err != nil {
+		breader := bytes.NewReader(data)
+		_, err = io.Copy(out, breader)
 		if err != nil {
-			if err != io.EOF && err != io.ErrUnexpectedEOF {
-				log.Printf("error: READ, %s", err)
-				return err
-			}
-		}
-		if n <= 0 {
-			break
-		}
-		// write a chunk
-		if _, err := out.Write(buf[:n]); err != nil {
-			log.Printf("error: WRITE, %s", err)
+			log.Printf("error: COPY, %s", err)
 			return err
 		}
 	}
