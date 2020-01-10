@@ -73,7 +73,7 @@ const (
 	<form action="/updatevoc/api/v2/files/delete" method="post">
 	{{range .}}
 
-		<input type="checkbox" name="files" value="{{.Md5}}">{{.Name}}<br>	  
+		<input type="checkbox" name="files" value="{{.Md5}}">{{.Name}} {{.DeviceName}} {{.Md5}}<br>	  
 	{{end}}
 		<input type="submit" value="Submit">
 	</form>
