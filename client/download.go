@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bytes"
-	"io"
+	"archive/zip"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 // DownloadFile will download a url and store it in local filepath.
@@ -14,11 +12,11 @@ import (
 // loading the entire file into memory.
 func DownloadFile(client *http.Client, url, filepath string) error {
 	// Create the file
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
+	// out, err := os.Create(filepath)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer out.Close()
 
 	// // Get the data
 	// req, err := http.NewRequest("GET", url, nil)
@@ -63,14 +61,50 @@ func DownloadFile(client *http.Client, url, filepath string) error {
 	// 	}
 	// }
 
-	if data, err := ioutil.ReadAll(resp.Body); err != nil {
-		breader := bytes.NewReader(data)
-		_, err = io.Copy(out, breader)
-		if err != nil {
-			log.Printf("error: COPY, %s", err)
-			return err
-		}
+	// //Create the file
+	// out, err := zip.NewWriter()
+	// if err != nil {
+	// 	return err
+	// }
+	// defer out.Close()
+
+	// if body, err := ioutil.ReadAll(resp.Body); err != nil {
+
+	// 	zipReader, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	for _, zipFile := range zipReader.File {
+	// 		unzippedFileBytes, err := readZipFile(zipFile)
+
+	// 	}
+
+	// 	_, err = io.Copy(out, zipReader.)
+	// 	if err != nil {
+	// 		log.Printf("error: COPY, %s", err)
+	// 		return err
+	// 	}
+	// }
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("error: READ, %s", err)
+		return err
+	}
+
+	if err := ioutil.WriteFile(filepath, body, 0644); err != nil {
+		log.Printf("error: WRITE, %s", err)
+		return err
 	}
 
 	return nil
+}
+
+func readZipFile(zf *zip.File) ([]byte, error) {
+	f, err := zf.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return ioutil.ReadAll(f)
 }
