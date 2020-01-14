@@ -120,8 +120,8 @@ func main() {
 			return
 		}
 		templateForm, _ := template.New("deviceUpdate").Parse(viewDeviceUpdate)
-		store := files.AllData()
-		log.Printf("%s", *store)
+		store := updates.
+			log.Printf("%s", *store)
 		if err := templateForm.Execute(w, *store); err != nil {
 			log.Printf("error: tmeplate delete, %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
