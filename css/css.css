@@ -1,0 +1,180 @@
+*{
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    font-family: sans-serif;
+}
+
+body{
+    background: #b9ddff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.form{
+    width: 450px;
+}
+
+.title{
+	width: 50%;
+    height: auto;
+    color: #fff;
+	background: #00172d;
+	position: relative;
+    z-index: 1;
+    padding: 15px 20px;
+  
+    border-radius: 6px 6px 0 0;
+	
+	-webkit-box-shadow: 8px -4px 16px rgba(0,0,0,0.32);
+    -moz-box-shadow: 8px -4px 16px rgba(0,0,0,0.32);
+         box-shadow: 8px -4px 16px rgba(0,0,0,0.32);
+}
+
+.title p{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+form{
+    width: 90%;
+    padding: 15px;
+    position: relative;
+    border-radius: 0 6px 6px 6px;
+    background: #375979;
+
+    -webkit-box-shadow: 8px 5px 16px rgba(0,0,0,0.32);
+    -moz-box-shadow: 8px 5px 16px rgba(0,0,0,0.32);
+         box-shadow: 8px 5px 16px rgba(0,0,0,0.32);
+}
+
+label{
+    display: block;
+    color: white;
+}
+
+input{
+    outline: 0;
+    width: 100%;
+    padding: 5px;
+    color: #00172d;
+    border-radius: 6px;
+    border: 1px solid silver;
+    margin: 5px 0 10px;
+
+    transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -webkit-transition: all 0.5s ease;
+}
+
+input:hover, input:focus{
+    border-bottom-color: black;
+}
+
+input[type="checkbox"]{
+    width: auto;
+    color: white;
+}
+
+input[type="file"]{
+    color: white;
+}
+
+input[type="submit"]{
+    color: white;
+    cursor: pointer;
+    background: #00172d;
+
+    transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -webkit-transition: all 0.5s ease;
+}
+
+input[type="submit"]:hover{
+    background: white;
+    color: #00172d;
+}
+
+.content{
+    display: inline-table;
+    width: 94%;
+}
+
+.content p{
+    color: white;
+}
+
+.content p span{
+    font-weight: bold;
+}
+
+.content ul{
+    color: white;
+    padding-left: 15px;
+}
+
+.content ul li{
+    list-style: inside;
+}
+
+body.inter{
+    background: white;
+}
+
+.inter .content{
+    width: 1170px;
+}
+
+.inter .content .title{
+    width: 100%;
+    text-align: center;
+    background: #375979;
+
+    -webkit-box-shadow: 1px 1px 4px rgba(0,0,0,0.32);
+    -moz-box-shadow: 1px 1px 4px rgba(0,0,0,0.32);
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.32);
+}
+
+.inter .content p{
+    color: white;
+}
+
+.inter .content .info{
+    width: 100%;
+    padding: 15px 20px;
+
+    -webkit-box-shadow: 1px 1px 4px rgba(0,0,0,0.32);
+    -moz-box-shadow: 1px 1px 4px rgba(0,0,0,0.32);
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.32);
+}
+
+.inter .content .info .title{
+    font-size: 20px;
+    padding: 0 0 5px 0;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    text-align: left;
+    background: transparent;
+    border-bottom: 1px solid silver;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+.inter .content .info .title p{
+    color: #375979;
+}
+
+.inter .conten-info p{
+    color: silver;
+}
+.inter .conten-info p span{
+    font-weight: bold;
+    color: #505050;
+}
