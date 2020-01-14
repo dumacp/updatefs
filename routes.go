@@ -302,12 +302,14 @@ func createUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	upDevice := &updatedata.Updatedatadevice{
 		ID:        uuid.New().String(),
+		Name:      devicename,
 		Date:      date,
 		Filedata:  filed,
 		IPRequest: ipclient,
 	}
 	upFile := &updatedata.Updatedatafile{
 		ID:        uuid.New().String(),
+		Name:      filed.Name,
 		Date:      date,
 		Device:    devicename,
 		IPRequest: ipclient,

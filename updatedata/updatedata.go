@@ -16,6 +16,7 @@ type UpdateData struct {
 //Updatedatadevice type info about of update in devices
 type Updatedatadevice struct {
 	ID        string           `json:"id"`
+	Name      string           `json:Name`
 	Date      int              `json:"date"`
 	Filedata  *loader.FileData `json:"filedata"`
 	IPRequest string           `json:"iprequest"`
@@ -24,6 +25,7 @@ type Updatedatadevice struct {
 //Updatedatafile type info about of update in files
 type Updatedatafile struct {
 	ID        string `json:"id"`
+	Name      string `json:"Name"`
 	Date      int    `json:"date"`
 	Device    string `json:"device"`
 	IPRequest string `json:"iprequest"`
