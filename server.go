@@ -25,61 +25,6 @@ var (
 
 const (
 	listensocket = "0.0.0.0:8000"
-	formFiledata = `<html>
-    <head>
-    <title></title>
-    </head>
-    <body>
-		<form action="/updatevoc/api/v2/files" enctype="multipart/form-data" method="post">
-			<div>
-				<label>description:</label>
-				<input type="text" name="description">
-			</div>	
-			<div>
-				<label>version:</label>
-				<input type="text" name="version">
-			</div>
-			<div>
-				<label>reference:</label>
-				<input type="number" name="reference">
-			</div>
-			<div>
-				<label>path:</label>
-				<input type="text" name="path">
-			</div>
-			<div>
-				<label>force reboot?:</label>
-				<input type="checkbox" name="reboot" value="yes">
-			</div>
-			<div>
-				<label>override?:</label>
-				<input type="checkbox" name="override" value="yes">
-			</div>
-			<div>
-				<input type="file" name="fileToUpload" id="fileToUpload">
-			</div>
-			<div>
-				<input type="submit" value="Upload">
-			</div>
-        </form>
-    </body>
-</html>`
-	formDeleteFile = `<!DOCTYPE html>
-	<html>
-	<body>
-	
-	<h1>Show currents files:</h1>
-	
-	<form action="/updatevoc/api/v2/files/delete" method="post">
-	{{range .}}
-
-		<input type="checkbox" name="files" value="{{.Md5}}">{{.Name}} {{.DeviceName}} {{.Md5}}<br>	  
-	{{end}}
-		<input type="submit" value="Submit">
-	</form>
-	
-	</body>
-	</html>`
 )
 
 func timeTrack(start time.Time, name string) {
@@ -142,25 +87,39 @@ func main() {
 	apiv2.HandleFunc("/updates/file/{md5}", searchUpdateByFile).Methods(http.MethodGet)
 	apiv2.HandleFunc("/updates", createUpdate).Methods(http.MethodPost)
 
-	uploadfile := r.PathPrefix("/updatevoc/upload").Subrouter()
-	uploadfile.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	datasite := r.PathPrefix("/updatevoc/data").Subrouter()
+	datasite.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		templateForm, _ := template.New("uploadfile").Parse(formFiledata)
+		templateForm, _ := template.New("uploadfile").Parse(formCreateFile)
 		if err := templateForm.Execute(w, nil); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	})
-	deletefiles := r.PathPrefix("/updatevoc/delete").Subrouter()
-	deletefiles.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	datasite.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		templateForm, _ := template.New("deletefiles").Parse(formDeleteFile)
+		store := files.AllData()
+		log.Printf("%s", *store)
+		if err := templateForm.Execute(w, *store); err != nil {
+			log.Printf("error: tmeplate delete, %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
+
+	datasite.HandleFunc("/updates", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		templateForm, _ := template.New("deviceUpdate").Parse(viewDeviceUpdate)
 		store := files.AllData()
 		log.Printf("%s", *store)
 		if err := templateForm.Execute(w, *store); err != nil {

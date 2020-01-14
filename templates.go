@@ -1,6 +1,6 @@
 package main
 
-const formUpdate = `<html>
+const formCreateFile = `<html>
 
 <head>
 	<title></title>
@@ -52,7 +52,7 @@ const formUpdate = `<html>
 
 </html>`
 
-const formDelete = `<html>
+const formDeleteFile = `<html>
 
 <head>
     <title></title>
@@ -92,10 +92,9 @@ const formDelete = `<html>
 </html>`
 
 const viewDeviceUpdate = `<html>
-
 <head>
     <title></title>
-    <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="/css/css.css">
 </head>
 
 <body class="inter">
@@ -104,7 +103,7 @@ const viewDeviceUpdate = `<html>
             <p>{{.Name}}</p>
         </div>
 
-		{{range .}}
+		{{range .Updates}}
         <div class="info">
             <div class="title">
                 <p>Information</p>
@@ -115,151 +114,31 @@ const viewDeviceUpdate = `<html>
             <div class="conten-info">
                 <p>
                     <span>Md5: </span>
-                    b75776f8b5f0786d67908ec9d891af25
+                    {{.Md5}}
                 </p>
                 <p>
                     <span>Filepath: </span>
-                    migracion_test3.zip
+                    {{.FilePath}}
                 </p>
                 <p>
                     <span>Description: </span>
-                    test 3
+                    {{.Description}}
                 </p>
                 <p>
                     <span>Ref: </span>
-                    3
+                    {{.Ref}}
                 </p>
                 <p>
                     <span>Version: </span>
-                    test3
+                    {{.Version}}
                 </p>
                 <p>
                     <span>Reboot: </span>
-                    true
+                    {{.Reboot}}
                 </p>
                 <p>
                     <span>Override: </span>
-                    false
-                </p>
-
-            </div>
-        </div>
-
-        <div class="info">
-            <div class="title">
-                <p>Information</p>
-
-                <p>Date</p>
-            </div>
-
-            <div class="conten-info">
-                <p>
-                    <span>Md5: </span>
-                    b75776f8b5f0786d67908ec9d891af25
-                </p>
-                <p>
-                    <span>Filepath: </span>
-                    migracion_test3.zip
-                </p>
-                <p>
-                    <span>Description: </span>
-                    test 3
-                </p>
-                <p>
-                    <span>Ref: </span>
-                    3
-                </p>
-                <p>
-                    <span>Version: </span>
-                    test3
-                </p>
-                <p>
-                    <span>Reboot: </span>
-                    true
-                </p>
-                <p>
-                    <span>Override: </span>
-                    false
-                </p>
-
-            </div>
-        </div>
-
-        <div class="info">
-            <div class="title">
-                <p>Information</p>
-
-                <p>Date</p>
-            </div>
-
-            <div class="conten-info">
-                <p>
-                    <span>Md5: </span>
-                    b75776f8b5f0786d67908ec9d891af25
-                </p>
-                <p>
-                    <span>Filepath: </span>
-                    migracion_test3.zip
-                </p>
-                <p>
-                    <span>Description: </span>
-                    test 3
-                </p>
-                <p>
-                    <span>Ref: </span>
-                    3
-                </p>
-                <p>
-                    <span>Version: </span>
-                    test3
-                </p>
-                <p>
-                    <span>Reboot: </span>
-                    true
-                </p>
-                <p>
-                    <span>Override: </span>
-                    false
-                </p>
-
-            </div>
-        </div>
-
-        <div class="info">
-            <div class="title">
-                <p>Information</p>
-
-                <p>Date</p>
-            </div>
-
-            <div class="conten-info">
-                <p>
-                    <span>Md5: </span>
-                    b75776f8b5f0786d67908ec9d891af25
-                </p>
-                <p>
-                    <span>Filepath: </span>
-                    migracion_test3.zip
-                </p>
-                <p>
-                    <span>Description: </span>
-                    test 3
-                </p>
-                <p>
-                    <span>Ref: </span>
-                    3
-                </p>
-                <p>
-                    <span>Version: </span>
-                    test3
-                </p>
-                <p>
-                    <span>Reboot: </span>
-                    true
-                </p>
-                <p>
-                    <span>Override: </span>
-                    false
+                    {{.Override}}
                 </p>
 
             </div>
@@ -267,4 +146,79 @@ const viewDeviceUpdate = `<html>
     </div>
 </body>
 
-</html>
+</html>`
+
+const listDevices = `<!DOCTYPE html>
+	<html>
+	<body>
+	
+	<h1>Show currents devices:</h1>
+	
+	
+	{{range .}}
+    <p>
+		{{.DeviceName}}
+    </p>
+    {{range .}}
+	
+	</body>
+</html>`
+
+// const (
+// 	formFiledata = `<html>
+//     <head>
+//     <title></title>
+//     </head>
+//     <body>
+// 		<form action="/updatevoc/api/v2/files" enctype="multipart/form-data" method="post">
+// 			<div>
+// 				<label>description:</label>
+// 				<input type="text" name="description">
+// 			</div>
+// 			<div>
+// 				<label>version:</label>
+// 				<input type="text" name="version">
+// 			</div>
+// 			<div>
+// 				<label>reference:</label>
+// 				<input type="number" name="reference">
+// 			</div>
+// 			<div>
+// 				<label>path:</label>
+// 				<input type="text" name="path">
+// 			</div>
+// 			<div>
+// 				<label>force reboot?:</label>
+// 				<input type="checkbox" name="reboot" value="yes">
+// 			</div>
+// 			<div>
+// 				<label>override?:</label>
+// 				<input type="checkbox" name="override" value="yes">
+// 			</div>
+// 			<div>
+// 				<input type="file" name="fileToUpload" id="fileToUpload">
+// 			</div>
+// 			<div>
+// 				<input type="submit" value="Upload">
+// 			</div>
+//         </form>
+//     </body>
+// </html>`
+
+// 	formDeleteFile = `<!DOCTYPE html>
+// 	<html>
+// 	<body>
+
+// 	<h1>Show currents files:</h1>
+
+// 	<form action="/updatevoc/api/v2/files/delete" method="post">
+// 	{{range .}}
+
+// 		<input type="checkbox" name="files" value="{{.Md5}}">{{.Name}} {{.DeviceName}} {{.Md5}}<br>
+// 	{{end}}
+// 		<input type="submit" value="Submit">
+// 	</form>
+
+// 	</body>
+//     </html>`
+// )
