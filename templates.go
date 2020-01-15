@@ -92,7 +92,7 @@ const formDeleteFile = `<html>
 
 </html>`
 
-const viewDeviceUpdate = `<html>
+const viewFileUpdate = `<html>
 <head>
     <title></title>
     <link rel="stylesheet" href="/updatevoc/css/css.css">
@@ -140,6 +140,56 @@ const viewDeviceUpdate = `<html>
                 <p>
                     <span>Override: </span>
                     {{.Override}}
+                </p>
+
+            </div>
+        </div>
+        {{end}}
+    </div>
+</body>
+
+</html>`
+
+const viewDeviceUpdate = `<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/updatevoc/css/css.css">
+</head>
+
+<body class="inter">
+    <div class="content">
+        <div class="title">
+            <p>{{.Name}}</p>
+        </div>
+
+		{{range .Updates}}
+        <div class="info">
+            <div class="title">
+                <p>Information</p>
+
+                <p>Date</p>
+            </div>
+
+            <div class="conten-info">
+                <p>
+                    <span>ID: </span>
+                    {{.ID}}
+                </p>
+                <p>
+                    <span>Date: </span>
+                    {{.Date}}
+                </p>
+                <p>
+                    <span>IP: </span>
+                    {{.IPRequest}}
+                </p>
+                <p>
+                    <span>FILE DATA: </span>
+                    <ul>
+						<li><p><span>Name: </span>{{.FileData.Name}}</p></li>
+                        <li><p><span>Desc: </span>{{.FileData.Description}}</p></li>
+                        <li><p><span>Md5: </span>{{.FileData.Md5}}</p></li>
+                    </ul>
                 </p>
 
             </div>
