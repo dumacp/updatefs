@@ -176,7 +176,12 @@ func main() {
 	datasite.HandleFunc("/files/{md5}", func(w http.ResponseWriter, r *http.Request) {
 		pathParams := mux.Vars(r)
 		md5 := pathParams["md5"]
-		templateForm, _ := template.New("lastfileUpdates").Parse(viewFileUpdate)
+		templateForm, err := template.New("lastfileUpdates").Parse(viewFileUpdate)
+		if err != nil {
+			log.Printf("error: template lastUpdates, %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		store, err := updates.SearchUpdateDataFile([]byte(md5), 0, 100, 0)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
