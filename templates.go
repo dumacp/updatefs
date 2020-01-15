@@ -144,6 +144,7 @@ const viewDeviceUpdate = `<html>
 
             </div>
         </div>
+        {{end}}
     </div>
 </body>
 
