@@ -110,7 +110,7 @@ func main() {
 			return
 		}
 	})
-	datasite.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
+	datasite.HandleFunc("/updates", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -125,29 +125,29 @@ func main() {
 		}
 	})
 
-	datasite.HandleFunc("/updates/{devicename}", func(w http.ResponseWriter, r *http.Request) {
-		pathParams := mux.Vars(r)
-		devicename := pathParams["devicename"]
-		templateForm, _ := template.New("lastUpdates").Parse(viewDeviceUpdate)
-		store, err := updates.SearchUpdateDataDevice([]byte(devicename), 0, 100, 0)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("error: %s", err)))
-			return
-		}
-		data := struct {
-			Name    string
-			Updates []*updatedata.Updatedatadevice
-		}{
-			devicename,
-			*store,
-		}
-		if err := templateForm.Execute(w, data); err != nil {
-			log.Printf("error: template lastUpdates, %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	}).Methods(http.MethodGet)
+	// datasite.HandleFunc("/updates/{devicename}", func(w http.ResponseWriter, r *http.Request) {
+	// 	pathParams := mux.Vars(r)
+	// 	devicename := pathParams["devicename"]
+	// 	templateForm, _ := template.New("lastUpdates").Parse(viewDeviceUpdate)
+	// 	store, err := updates.SearchUpdateDataDevice([]byte(devicename), 0, 100, 0)
+	// 	if err != nil {
+	// 		w.WriteHeader(http.StatusInternalServerError)
+	// 		w.Write([]byte(fmt.Sprintf("error: %s", err)))
+	// 		return
+	// 	}
+	// 	data := struct {
+	// 		Name    string
+	// 		Updates []*updatedata.Updatedatadevice
+	// 	}{
+	// 		devicename,
+	// 		*store,
+	// 	}
+	// 	if err := templateForm.Execute(w, data); err != nil {
+	// 		log.Printf("error: template lastUpdates, %s", err)
+	// 		w.WriteHeader(http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// }).Methods(http.MethodGet)
 
 	datasite.HandleFunc("/devices/{devicename}", func(w http.ResponseWriter, r *http.Request) {
 		pathParams := mux.Vars(r)

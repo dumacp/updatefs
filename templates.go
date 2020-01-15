@@ -72,6 +72,7 @@ const formDeleteFile = `<html>
                     <input type="checkbox" name="files" value="{{.Md5}}">
 
                     <div class="content">
+                        <p><span>ID: </span>{{.ID}}</p>
                         <p><span>Name: </span>{{.Name}}</p>
                         <p><span>Desc: </span>{{.Description}}</p>
                         <p><span>Md5: </span>{{.Md5}}</p>
@@ -85,7 +86,7 @@ const formDeleteFile = `<html>
                     </div>
                 </div>
             {{end}}
-            <input type="submit" value="Submit">
+            <input type="submit" value="DELETE">
         </form>
     </div>
 </body>
