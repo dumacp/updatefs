@@ -160,8 +160,8 @@ func main() {
 			return
 		}
 		data := struct {
-			Name   string
-			Update []*updatedata.Updatedatadevice
+			Name    string
+			Updates []*updatedata.Updatedatadevice
 		}{
 			devicename,
 			*store,
@@ -184,8 +184,8 @@ func main() {
 			return
 		}
 		data := struct {
-			Name   string
-			Update []*updatedata.Updatedatafile
+			Name    string
+			Updates []*updatedata.Updatedatafile
 		}{
 			md5,
 			*store,
