@@ -149,10 +149,10 @@ func main() {
 		}
 	}).Methods(http.MethodGet)
 
-	datasite.HandleFunc("/updates/{devicename}", func(w http.ResponseWriter, r *http.Request) {
+	datasite.HandleFunc("/devices/{devicename}", func(w http.ResponseWriter, r *http.Request) {
 		pathParams := mux.Vars(r)
 		devicename := pathParams["devicename"]
-		templateForm, _ := template.New("lastUpdates").Parse(viewDeviceUpdate)
+		templateForm, _ := template.New("lastDeviceUpdates").Parse(viewDeviceUpdate)
 		store, err := updates.SearchUpdateDataDevice([]byte(devicename), 0, 100, 0)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -164,6 +164,30 @@ func main() {
 			Update []*updatedata.Updatedatadevice
 		}{
 			devicename,
+			*store,
+		}
+		if err := templateForm.Execute(w, data); err != nil {
+			log.Printf("error: template lastUpdates, %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}).Methods(http.MethodGet)
+
+	datasite.HandleFunc("/files/{md5}", func(w http.ResponseWriter, r *http.Request) {
+		pathParams := mux.Vars(r)
+		md5 := pathParams["md5"]
+		templateForm, _ := template.New("lastfileUpdates").Parse(viewFileUpdate)
+		store, err := updates.SearchUpdateDataFile([]byte(md5), 0, 100, 0)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("error: %s", err)))
+			return
+		}
+		data := struct {
+			Name   string
+			Update []*updatedata.Updatedatafile
+		}{
+			md5,
 			*store,
 		}
 		if err := templateForm.Execute(w, data); err != nil {

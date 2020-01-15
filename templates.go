@@ -114,34 +114,25 @@ const viewFileUpdate = `<html>
 
             <div class="conten-info">
                 <p>
-                    <span>Md5: </span>
-                    {{.Md5}}
+                    <span>ID: </span>
+                    {{.ID}}
                 </p>
                 <p>
-                    <span>Filepath: </span>
-                    {{.FilePath}}
+                    <span>Device: </span>
+                    {{.Device}}
                 </p>
                 <p>
-                    <span>Description: </span>
-                    {{.Description}}
+                    <span>Device: </span>
+                    {{.Device}}
                 </p>
                 <p>
-                    <span>Ref: </span>
-                    {{.Ref}}
+                    <span>Name file: </span>
+                    {{.Name}
                 </p>
                 <p>
-                    <span>Version: </span>
-                    {{.Version}}
+                    <span>IP: </span>
+                    {{.IPRequest}}
                 </p>
-                <p>
-                    <span>Reboot: </span>
-                    {{.Reboot}}
-                </p>
-                <p>
-                    <span>Override: </span>
-                    {{.Override}}
-                </p>
-
             </div>
         </div>
         {{end}}
@@ -186,9 +177,9 @@ const viewDeviceUpdate = `<html>
                 <p>
                     <span>FILE DATA: </span>
                     <ul>
-						<li><p><span>Name: </span>{{.FileData.Name}}</p></li>
-                        <li><p><span>Desc: </span>{{.FileData.Description}}</p></li>
-                        <li><p><span>Md5: </span>{{.FileData.Md5}}</p></li>
+						<li><p><span>Name: </span>{{.Filedata.Name}}</p></li>
+                        <li><p><span>Desc: </span>{{.Filedata.Description}}</p></li>
+                        <li><p><span>Md5: </span>{{.Filedata.Md5}}</p></li>
                     </ul>
                 </p>
 
