@@ -16,6 +16,7 @@ import (
 
 var (
 	dir         string
+	pathcss     string
 	pathdb      string
 	pathfilesdb string
 	files       datastore.FileStore
@@ -37,6 +38,7 @@ func init() {
 	flag.StringVar(&dir, "dir", "/data/all/files", "the directory to serve files from. Defaults to the current dir")
 	flag.StringVar(&pathdb, "pathupdatesdb", "/data/all/updates.db", "path to updates database")
 	flag.StringVar(&pathfilesdb, "pathfilesdb", "/data/all/files.db", "path to files database")
+	flag.StringVar(&pathcss, "pathcss", "/data/all/css", "path to css")
 	flag.StringVar(&socket, "listensocket", listensocket, "socket to listen")
 	files = &datastore.Files{}
 	updates = &updatedata.UpdateData{}
@@ -51,6 +53,9 @@ func main() {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Fatalf("error: cannot create dir %q", dir)
 	}
+	if err := os.MkdirAll(pathcss, 0755); err != nil {
+		log.Fatalf("error: cannot create dir %q", dir)
+	}
 
 	r := mux.NewRouter()
 	log.Println("filedata api")
@@ -62,6 +67,12 @@ func main() {
 	}
 	fileserver2 := r.PathPrefix("/updatevoc/static/").Handler(http.StripPrefix("/updatevoc/static/", http.FileServer(http.Dir(dir))))
 	if methods, err := fileserver2.GetMethods(); err != nil {
+		for i, v := range methods {
+			log.Printf("Method %d: %s", i, v)
+		}
+	}
+	filecss := r.PathPrefix("/updatevoc/css/").Handler(http.StripPrefix("/updatevoc/css/", http.FileServer(http.Dir(pathcss))))
+	if methods, err := filecss.GetMethods(); err != nil {
 		for i, v := range methods {
 			log.Printf("Method %d: %s", i, v)
 		}
@@ -106,7 +117,7 @@ func main() {
 		}
 		templateForm, _ := template.New("deletefiles").Parse(formDeleteFile)
 		store := files.AllData()
-		log.Printf("%s", *store)
+		log.Printf("%v", *store)
 		if err := templateForm.Execute(w, *store); err != nil {
 			log.Printf("error: tmeplate delete, %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -114,20 +125,53 @@ func main() {
 		}
 	})
 
-	datasite.HandleFunc("/updates", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			w.WriteHeader(http.StatusBadRequest)
+	datasite.HandleFunc("/updates/{devicename}", func(w http.ResponseWriter, r *http.Request) {
+		pathParams := mux.Vars(r)
+		devicename := pathParams["devicename"]
+		templateForm, _ := template.New("lastUpdates").Parse(viewDeviceUpdate)
+		store, err := updates.SearchUpdateDataDevice([]byte(devicename), 0, 100, 0)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("error: %s", err)))
 			return
 		}
-		templateForm, _ := template.New("deviceUpdate").Parse(viewDeviceUpdate)
-		store := updates.
-			log.Printf("%s", *store)
-		if err := templateForm.Execute(w, *store); err != nil {
-			log.Printf("error: tmeplate delete, %s", err)
+		data := struct {
+			Name   string
+			Update []*updatedata.Updatedatadevice
+		}{
+			devicename,
+			*store,
+		}
+		if err := templateForm.Execute(w, data); err != nil {
+			log.Printf("error: template lastUpdates, %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	})
+	}).Methods(http.MethodGet)
+
+	datasite.HandleFunc("/updates/{devicename}", func(w http.ResponseWriter, r *http.Request) {
+		pathParams := mux.Vars(r)
+		devicename := pathParams["devicename"]
+		templateForm, _ := template.New("lastUpdates").Parse(viewDeviceUpdate)
+		store, err := updates.SearchUpdateDataDevice([]byte(devicename), 0, 100, 0)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("error: %s", err)))
+			return
+		}
+		data := struct {
+			Name   string
+			Update []*updatedata.Updatedatadevice
+		}{
+			devicename,
+			*store,
+		}
+		if err := templateForm.Execute(w, data); err != nil {
+			log.Printf("error: template lastUpdates, %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}).Methods(http.MethodGet)
 
 	srv := &http.Server{
 		Handler: r,

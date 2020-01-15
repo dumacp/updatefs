@@ -173,6 +173,49 @@ func (up *UpdateData) GetUpdateDataDevice(devicename, key []byte) (*Updatedatade
 	return deviced, nil
 }
 
+//GetLastDataDevices get value for key in bucket bucketupdatesdevices
+func (up *UpdateData) GetLastDataDevices() *[]*Updatedatadevice {
+	updatesData := make([]*Updatedatadevice, 0)
+	if err := up.db.View(func(tx *bolt.Tx) error {
+		bk := tx.Bucket([]byte(bucketupdatesdevicesDate))
+		it := bk.Cursor()
+		ki, vi := it.First()
+		if ki == nil {
+			return nil
+		}
+		appendFunc := func(key, value []byte) error {
+			if value != nil {
+				return nil
+			}
+			bkDevice := tx.Bucket([]byte(key))
+			itlast := bkDevice.Cursor()
+			_, vii := itlast.Last()
+			deviced := new(Updatedatadevice)
+			if err := json.Unmarshal(vii, deviced); err != nil {
+				return err
+			}
+			return nil
+		}
+		if err := appendFunc(ki, vi); err != nil {
+			return err
+		}
+		for {
+			if kii, vii := it.Prev(); kii != nil {
+				if err := appendFunc(kii, vii); err != nil {
+					return err
+				}
+				continue
+			}
+			break
+		}
+
+		return nil
+	}); err != nil {
+		return nil
+	}
+	return &updatesData
+}
+
 //GetUpdateDataFile get value for key in bucket bucketupdatesfiles
 func (up *UpdateData) GetUpdateDataFile(filemd5, key []byte) (*Updatedatafile, error) {
 	var filed *Updatedatafile
@@ -201,7 +244,7 @@ func (up *UpdateData) GetUpdateDataFile(filemd5, key []byte) (*Updatedatafile, e
 }
 
 //SearchUpdateDataDevice search value parameters in bucket bucketupdatesdevicesDate
-func (up *UpdateData) SearchUpdateDataDevice(devicename []byte, date, limit, skip int) ([]*Updatedatadevice, error) {
+func (up *UpdateData) SearchUpdateDataDevice(devicename []byte, date, limit, skip int) (*[]*Updatedatadevice, error) {
 	updatesData := make([]*Updatedatadevice, 0)
 	if err := up.db.View(func(tx *bolt.Tx) error {
 		bk := tx.Bucket([]byte(bucketupdatesdevicesDate))
@@ -245,11 +288,11 @@ func (up *UpdateData) SearchUpdateDataDevice(devicename []byte, date, limit, ski
 	}); err != nil {
 		return nil, err
 	}
-	return updatesData, nil
+	return &updatesData, nil
 }
 
 //SearchUpdateDataFile search value for parameters in bucket bucketupdatesfilesDate
-func (up *UpdateData) SearchUpdateDataFile(filemd5 []byte, date, limit, skip int) ([]*Updatedatafile, error) {
+func (up *UpdateData) SearchUpdateDataFile(filemd5 []byte, date, limit, skip int) (*[]*Updatedatafile, error) {
 	updatesData := make([]*Updatedatafile, 0)
 	if err := up.db.View(func(tx *bolt.Tx) error {
 		bk := tx.Bucket([]byte(bucketupdatesfilesDate))
@@ -293,5 +336,5 @@ func (up *UpdateData) SearchUpdateDataFile(filemd5 []byte, date, limit, skip int
 	}); err != nil {
 		return nil, err
 	}
-	return updatesData, nil
+	return &updatesData, nil
 }

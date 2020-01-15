@@ -7,6 +7,7 @@ type UpdateStore interface {
 	NewUpdateDataFile(filemd5, key []byte, value *Updatedatafile) error
 	GetUpdateDataDevice(devicename, key []byte) (*Updatedatadevice, error)
 	GetUpdateDataFile(filemd5, key []byte) (*Updatedatafile, error)
-	SearchUpdateDataDevice(key []byte, date, limit, skip int) ([]*Updatedatadevice, error)
-	SearchUpdateDataFile(key []byte, date, limit, skip int) ([]*Updatedatafile, error)
+	SearchUpdateDataDevice(key []byte, date, limit, skip int) (*[]*Updatedatadevice, error)
+	SearchUpdateDataFile(key []byte, date, limit, skip int) (*[]*Updatedatafile, error)
+	GetLastDataDevices() *[]*Updatedatadevice
 }

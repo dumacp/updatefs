@@ -16,6 +16,8 @@ RUN chmod 640 /home/sftpuser/.ssh/authorized_keys
 
 VOLUME /data/all
 
+COPY css /data/all/css
+
 EXPOSE 8000/tcp
 
 ENTRYPOINT ["./entrypoint.sh"]

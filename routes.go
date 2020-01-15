@@ -78,8 +78,8 @@ func searchByDeviceName(w http.ResponseWriter, r *http.Request) {
 	}
 	if val, ok := pathParams["devicename"]; ok {
 		//og.Printf("%+v", val)
-		data := *files.SearchDeviceName(val, date, limit, skip)
-		b, err := json.Marshal(data)
+		data := files.SearchDeviceName(val, date, limit, skip)
+		b, err := json.Marshal(*data)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(`{"error": "error marshalling data"}`))
@@ -127,7 +127,7 @@ func searchUpdateByDeviceName(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"error": "error collenting data"}`))
 			return
 		}
-		b, err := json.Marshal(data)
+		b, err := json.Marshal(*data)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(`{"error": "error marshalling data"}`))
@@ -160,7 +160,7 @@ func searchUpdateByFile(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"error": "error collenting data"}`))
 			return
 		}
-		b, err := json.Marshal(data)
+		b, err := json.Marshal(*data)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(`{"error": "error marshalling data"}`))
@@ -176,8 +176,8 @@ func searchUpdateByFile(w http.ResponseWriter, r *http.Request) {
 func allUpdateDevices(w http.ResponseWriter, r *http.Request) {
 	mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
-	data := *files.AllData()
-	b, err := json.Marshal(data)
+	data := files.AllData()
+	b, err := json.Marshal(*data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"error": "error marshalling data"}`))

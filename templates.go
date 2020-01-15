@@ -4,7 +4,7 @@ const formCreateFile = `<html>
 
 <head>
 	<title></title>
-	<link rel="stylesheet" href="/css/css.css">
+	<link rel="stylesheet" href="/updatevoc/css/css.css">
 </head>
 
 <body>
@@ -56,7 +56,7 @@ const formDeleteFile = `<html>
 
 <head>
     <title></title>
-    <link rel="stylesheet" href="/css/css.css">
+    <link rel="stylesheet" href="/updatevoc/css/css.css">
 </head>
 
 <body>
@@ -73,6 +73,7 @@ const formDeleteFile = `<html>
 
                     <div class="content">
                         <p><span>Name: </span>{{.Name}}</p>
+                        <p><span>Desc: </span>{{.Description}}</p>
                         <p><span>Md5: </span>{{.Md5}}</p>
                         <p><span>Devices: </span>
 							<ul>
@@ -94,7 +95,7 @@ const formDeleteFile = `<html>
 const viewDeviceUpdate = `<html>
 <head>
     <title></title>
-    <link rel="stylesheet" href="/css/css.css">
+    <link rel="stylesheet" href="/updatevoc/css/css.css">
 </head>
 
 <body class="inter">
