@@ -119,8 +119,8 @@ const viewFileUpdate = `<html>
                     {{.ID}}
                 </p>
                 <p>
-                    <span>Device: </span>
-                    {{.Device}}
+                    <span>Date: </span>
+                    {{.Date}}
                 </p>
                 <p>
                     <span>Device: </span>
