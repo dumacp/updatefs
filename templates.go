@@ -128,7 +128,7 @@ const viewFileUpdate = `<html>
                 </p>
                 <p>
                     <span>Name file: </span>
-                    {{.Name}
+                    {{.Name}}
                 </p>
                 <p>
                     <span>IP: </span>
