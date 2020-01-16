@@ -178,6 +178,7 @@ const viewDeviceUpdate = `<html>
                 <p>
                     <span>FILE DATA: </span>
                     <ul>
+                        <li><p><span>ID: </span>{{.Filedata.ID}}</p></li>
 						<li><p><span>Name: </span>{{.Filedata.Name}}</p></li>
                         <li><p><span>Desc: </span>{{.Filedata.Description}}</p></li>
                         <li><p><span>Md5: </span>{{.Filedata.Md5}}</p></li>
