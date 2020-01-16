@@ -57,33 +57,21 @@ func (up *UpdateData) NewUpdateDataDevice(devicename, key []byte, value *Updated
 		return err
 	}
 	if err := up.db.Update(func(tx *bolt.Tx) error {
-		bk := tx.Bucket([]byte(bucketupdatesdevices))
-		if bk == nil {
-			var err error
-			if bk, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesdevices)); err != nil {
-				return err
-			}
+		bk, err := tx.CreateBucketIfNotExists([]byte(bucketupdatesdevices))
+		if err != nil {
+			return err
 		}
-		bkDate := tx.Bucket([]byte(bucketupdatesdevicesDate))
-		if bkDate == nil {
-			var err error
-			if bkDate, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesdevicesDate)); err != nil {
-				return err
-			}
+		bkDate, err := tx.CreateBucketIfNotExists([]byte(bucketupdatesdevicesDate))
+		if err != nil {
+			return err
 		}
-		bkdevices := bk.Bucket(devicename)
-		if bkdevices == nil {
-			var err error
-			if bkdevices, err = bk.CreateBucketIfNotExists(devicename); err != nil {
-				return err
-			}
+		bkdevices, err := bk.CreateBucketIfNotExists(devicename)
+		if err != nil {
+			return err
 		}
-		bkdevicesDate := bkDate.Bucket(devicename)
-		if bkdevicesDate == nil {
-			var err error
-			if bkdevicesDate, err = bkDate.CreateBucketIfNotExists(devicename); err != nil {
-				return err
-			}
+		bkdevicesDate, err := bkDate.CreateBucketIfNotExists(devicename)
+		if err != nil {
+			return err
 		}
 		if err := bkdevices.Put(key, val1); err != nil {
 			return err
@@ -105,33 +93,21 @@ func (up *UpdateData) NewUpdateDataFile(filemd5, key []byte, value *Updatedatafi
 		return err
 	}
 	if err := up.db.Update(func(tx *bolt.Tx) error {
-		bk := tx.Bucket([]byte(bucketupdatesfiles))
-		if bk == nil {
-			var err error
-			if bk, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesfiles)); err != nil {
-				return err
-			}
+		bk, err := tx.CreateBucketIfNotExists([]byte(bucketupdatesfiles))
+		if err != nil {
+			return err
 		}
-		bkDate := tx.Bucket([]byte(bucketupdatesfilesDate))
-		if bkDate == nil {
-			var err error
-			if bkDate, err = tx.CreateBucketIfNotExists([]byte(bucketupdatesfilesDate)); err != nil {
-				return err
-			}
+		bkDate, err := tx.CreateBucketIfNotExists([]byte(bucketupdatesfilesDate))
+		if err != nil {
+			return err
 		}
-		bkfiles := bk.Bucket(filemd5)
-		if bkfiles == nil {
-			var err error
-			if bkfiles, err = bk.CreateBucketIfNotExists(filemd5); err != nil {
-				return err
-			}
+		bkfiles, err := bk.CreateBucketIfNotExists(filemd5)
+		if err != nil {
+			return err
 		}
-		bkfilesDate := bkDate.Bucket(filemd5)
-		if bkfilesDate == nil {
-			var err error
-			if bkfilesDate, err = bkDate.CreateBucketIfNotExists(filemd5); err != nil {
-				return err
-			}
+		bkfilesDate, err := bkDate.CreateBucketIfNotExists(filemd5)
+		if err != nil {
+			return err
 		}
 		if err := bkfiles.Put(key, val1); err != nil {
 			return err
