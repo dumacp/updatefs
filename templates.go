@@ -72,7 +72,7 @@ const formDeleteFile = `<html>
                     <input type="checkbox" name="files" value="{{.Md5}}">
 
                     <div class="content">
-                        <p><span>ID: </span>{{.ID}}</p>
+                        <p><span>ID: </span><a href="/updatevoc/data/files/{{.ID}}>{{.ID}}</a></p>
                         <p><span>Name: </span>{{.Name}}</p>
                         <p><span>Desc: </span>{{.Description}}</p>
                         <p><span>Md5: </span>{{.Md5}}</p>
