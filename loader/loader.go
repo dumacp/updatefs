@@ -108,7 +108,7 @@ func LoadData(db *bolt.DB) *[]*FileData {
 				}
 				log.Printf("filed: %+v", filed)
 				storeMap[int(filed.Date)] = filed
-				ret = append(ret, filed)
+				// ret = append(ret, filed)
 			}
 			return nil
 		}); err != nil {
