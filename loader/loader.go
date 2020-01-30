@@ -3,6 +3,7 @@ package loader
 import (
 	"encoding/json"
 	"log"
+	"sort"
 
 	"github.com/boltdb/bolt"
 )
@@ -91,7 +92,8 @@ const (
 //LoadData Loda initial metadata
 func LoadData(db *bolt.DB) *[]*FileData {
 
-	ret := make([]*FileData, 0, 0)
+	ret := make([]*FileData, 0)
+	storeMap := make(map[int]*FileData)
 
 	if err := db.View(func(tx *bolt.Tx) error {
 		bk := tx.Bucket([]byte(Bucketfiles))
@@ -105,6 +107,7 @@ func LoadData(db *bolt.DB) *[]*FileData {
 					return err
 				}
 				log.Printf("filed: %+v", filed)
+				storeMap[int(filed.Date)] = filed
 				ret = append(ret, filed)
 			}
 			return nil
@@ -117,6 +120,17 @@ func LoadData(db *bolt.DB) *[]*FileData {
 
 	}); err != nil {
 		log.Println(err)
+	}
+
+	keys := make([]int, 0, len(storeMap))
+	for k := range storeMap {
+		keys = append(keys, k)
+	}
+
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		ret = append(ret, storeMap[k])
 	}
 
 	return &ret

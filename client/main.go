@@ -242,20 +242,20 @@ func main() {
 			log.Printf("ERROR NewRequestFilesByDevicename: %s", err)
 			return
 		}
-		if store == nil || len(*store) <= 0 {
+		if store == nil || len(store) <= 0 {
 			if len(groupname) > 0 {
 				store, err = NewRequestFilesByDevicename(client, urlin, groupname, int(filedata.Date), 1, 0)
 				if err != nil {
 					log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
 					return
 				}
-				if store == nil || len(*store) <= 0 {
+				if store == nil || len(store) <= 0 {
 					store, err = NewRequestFilesByDevicename(client, urlin, "all", int(filedata.Date), 1, 0)
 					if err != nil {
 						log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
 						return
 					}
-					if store == nil || len(*store) <= 0 {
+					if store == nil || len(store) <= 0 {
 						return
 					}
 				}
@@ -263,12 +263,12 @@ func main() {
 		}
 
 		var lastFiledata *loader.FileData
-		for _, v := range *store {
+		for _, v := range store {
 			filedatanow := v
 			if !filedatanow.Override && lastFiledata != nil {
 				break
 			}
-			lastFiledata = &v
+			lastFiledata = v
 			fmt.Printf("%+v, %+v\n", filedatanow, filedata)
 			if filedatanow.Date > filedata.Date && (filedatanow.Override || filedatanow.Ref > filedata.Ref) {
 				if len(filedatanow.Md5) > 0 &&
@@ -336,6 +336,7 @@ func main() {
 						log.Printf("force reboot!")
 						syscall.Sync()
 						syscall.Reboot(syscall.LINUX_REBOOT_CMD_RESTART)
+						os.Exit(0)
 					}
 
 				}

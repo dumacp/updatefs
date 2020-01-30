@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sort"
 
 	"github.com/dumacp/updatefs/loader"
 )
@@ -18,7 +19,7 @@ const (
 )
 
 //NewRequestFilesByDevicename function valid a complete recorrido in metroplo WS
-func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, date, limit, skip int) (*[]loader.FileData, error) {
+func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, date, limit, skip int) ([]*loader.FileData, error) {
 
 	urlGet := fmt.Sprintf("%s/%s/%s/%s", urlin, apiversion, apidevice, devicename)
 
@@ -61,12 +62,30 @@ func NewRequestFilesByDevicename(client *http.Client, urlin, devicename string, 
 		return nil, nil
 	}
 
-	store := new([]loader.FileData)
-	if err := json.Unmarshal(body, store); err != nil {
+	store := make([]loader.FileData, 0)
+	if err := json.Unmarshal(body, &store); err != nil {
 		return nil, err
 	}
 
-	return store, nil
+	storeMap := make(map[int]*loader.FileData)
+	storeSort := make([]*loader.FileData, 0)
+
+	for _, v := range store {
+		storeMap[int(v.Date)] = &v
+	}
+
+	keys := make([]int, 0, len(storeMap))
+	for k := range storeMap {
+		keys = append(keys, k)
+	}
+
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		storeSort = append(storeSort, storeMap[k])
+	}
+
+	return storeSort, nil
 
 	//return http.DefaultClient.Do(req)
 }
