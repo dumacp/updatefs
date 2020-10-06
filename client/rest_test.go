@@ -47,7 +47,7 @@ func TestNewRequestFilesByDeviname(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewRequestFilesByDeviname() = %v, want %v", got, tt.want)
-				for _, v := range *got {
+				for _, v := range got {
 					t.Errorf("NewRequestFiles() = %+v", v)
 				}
 			}

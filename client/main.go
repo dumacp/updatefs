@@ -319,8 +319,8 @@ func main() {
 					}
 				}
 				if err := db.Update(func(tx *bolt.Tx) error {
-					bk := tx.Bucket([]byte("updates"))
-					if bk == nil {
+					bk, err := tx.CreateBucketIfNotExists([]byte("updates"))
+					if bk == nil || err != nil {
 						return bolt.ErrBucketNotFound
 					}
 					val, err := json.Marshal(filedatanow)
@@ -332,6 +332,7 @@ func main() {
 					log.Printf("ERROR in update data lastupdate: %s", err)
 				} else {
 					log.Printf("update data lastupdate!")
+					filedata = filedatanow
 					if filedatanow.ForceReboot {
 						log.Printf("force reboot!")
 						syscall.Sync()
