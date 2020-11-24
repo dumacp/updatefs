@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/dumacp/updatefs/loader"
@@ -37,7 +38,7 @@ func (b *Files) Initialize(pathdb, pathfiles string) {
 func (b *Files) SearchDeviceName(devicename string, date, limit, skip int) *[]*loader.FileData {
 	ret := Filter(b.Store, func(v *loader.FileData) bool {
 		for _, vi := range v.DeviceName {
-			if strings.Contains(strings.ToLower(vi), strings.ToLower(devicename)) && int(v.Date) > date {
+			if strings.Contains(strings.ToLower(vi), strings.ToLower(devicename)) && int(v.Date) > date && v.Date > time.Now().Add(-3*24*time.Hour).Unix() {
 				return true
 			}
 		}
