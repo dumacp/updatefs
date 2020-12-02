@@ -208,6 +208,7 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	ref, _ := strconv.Atoi(r.FormValue("reference"))
 	version := r.FormValue("version")
 	path := r.FormValue("path")
+	date, _ := strconv.Atoi(r.FormValue("fromDate"))
 	reboot := r.FormValue("reboot")
 	override := r.FormValue("override")
 
@@ -247,7 +248,11 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	filed.FilePath, _ = filepath.Rel(dir, filePath)
 	filed.Name = filepath.Base(filePath)
 	filed.ID = uuid.New().String()
-	filed.Date = time.Now().Unix()
+	if int64(date) <= time.Now().Unix() {
+		filed.Date = time.Now().Unix()
+	} else {
+		filed.Date = int64(date)
+	}
 	md5sum := md5.Sum(data)
 	filed.Md5 = hex.EncodeToString(md5sum[0:])
 	filed.Description = desc

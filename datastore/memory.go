@@ -38,7 +38,7 @@ func (b *Files) Initialize(pathdb, pathfiles string) {
 func (b *Files) SearchDeviceName(devicename string, date, limit, skip int) *[]*loader.FileData {
 	ret := Filter(b.Store, func(v *loader.FileData) bool {
 		for _, vi := range v.DeviceName {
-			if strings.Contains(strings.ToLower(vi), strings.ToLower(devicename)) && int(v.Date) > date && v.Date > time.Now().Add(-3*24*time.Hour).Unix() {
+			if strings.Contains(strings.ToLower(vi), strings.ToLower(devicename)) && int(v.Date) > date && v.Date > time.Now().Add(-3*24*time.Hour).Unix() && v.Date <= time.Now().Unix() {
 				return true
 			}
 		}
@@ -103,7 +103,7 @@ func (b *Files) CreateFile(file *loader.FileData) bool {
 		if err != nil {
 			return bolt.ErrBucketNotFound
 		}
-		if err := bk.Put([]byte(file.Md5), filev); err != nil {
+		if err := bk.Put([]byte(file.ID), filev); err != nil {
 			return err
 		}
 		return nil
