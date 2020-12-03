@@ -34,7 +34,7 @@ const formCreateFile = `<html>
 			</div>
 			<div>
 				<label>Date (from this date):</label>
-				<input type="number" name="date" autocomplete="off">
+				<input type="number" name="fromDate" autocomplete="off">
 			</div>
 			<div>
 				<label>Force reboot?:</label>
