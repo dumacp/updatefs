@@ -29,8 +29,12 @@ const formCreateFile = `<html>
 				<input type="number" name="reference" autocomplete="off">
 			</div>
 			<div>
-				<label>Path:</label>
+				<label>Path (applicability domain):</label>
 				<input type="text" name="path" autocomplete="off">
+			</div>
+			<div>
+				<label>Date (from this date):</label>
+				<input type="number" name="date" autocomplete="off">
 			</div>
 			<div>
 				<label>Force reboot?:</label>
