@@ -81,6 +81,7 @@ const formDeleteFile = `<html>
                         <p><span>Desc: </span>{{.Description}}</p>
                         <p><span>Md5: </span>{{.Md5}}</p>
                         <p><span>Ref: </span>{{.Ref}}</p>
+                        <p><span>FromDate: </span>{{.Date}}</p>
                         <p><span>Devices: </span>
 							<ul>
 								{{range .DeviceName}}
