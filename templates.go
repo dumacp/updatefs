@@ -73,7 +73,7 @@ const formDeleteFile = `<html>
         <form action="/updatevoc/api/v2/files/delete" method="post">
             {{range .}}
                 <div>
-                    <input type="checkbox" name="files" value="{{.Md5}}">
+                    <input type="checkbox" name="files" value="{{.ID}}">
 
                     <div class="content">
                         <p><span>ID: </span><a href="/updatevoc/data/files/{{.ID}}">{{.ID}}</a></p>
