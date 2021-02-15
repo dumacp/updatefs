@@ -352,7 +352,7 @@ func main() {
 						os.Exit(0)
 					}
 					if filedatanow.ForceApply {
-						upfatefw := exec.Command("/etc/init.d/script-migracion-init.sh")
+						upfatefw := exec.Command("sh", "-c", "/etc/init.d/script-migracion-init.sh")
 						if err := upfatefw.Run(); err != nil {
 							log.Println(err)
 						}

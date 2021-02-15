@@ -19,4 +19,4 @@ VOLUME /data/all
 EXPOSE 8000/tcp
 
 ENTRYPOINT ["./entrypoint.sh"]
-CMD ["app"]
+CMD ["updatefs"]
