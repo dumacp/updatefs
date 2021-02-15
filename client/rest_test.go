@@ -29,7 +29,7 @@ func TestNewRequestFilesByDeviname(t *testing.T) {
 			args{
 				&http.Client{},
 				"http://127.0.0.1:8000",
-				"all",
+				"test1",
 				0,
 				2,
 				1,

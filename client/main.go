@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"regexp"
 	"strings"
@@ -20,6 +21,7 @@ import (
 )
 
 var urlin string
+var version bool
 
 type devicedata struct {
 	Name         string `json:"name"`
@@ -36,14 +38,20 @@ const (
 	pathupdatefile  = "/SD/update/migracion.zip"
 	pathfirmwareRef = "/usr/include/firmware-ne"
 	pathenvfile     = "/usr/include/serial-dev"
+	showVersion     = "1.0.3"
 )
 
 func init() {
 	flag.StringVar(&urlin, "url", "http://127.0.0.1:8000", "url server")
+	flag.BoolVar(&version, "version", false, "show version")
 }
 
 func main() {
 	flag.Parse()
+	if version {
+		fmt.Printf("version: %s\n", showVersion)
+		os.Exit(2)
+	}
 	if err := os.MkdirAll(dirDB, 0755); err != nil {
 		log.Fatalln(err)
 	}
@@ -226,9 +234,9 @@ func main() {
 	tick := time.NewTicker(10 * time.Minute)
 	start := time.NewTimer(3 * time.Second)
 
-	loopfunc := func(client *http.Client) {
+	loopfunc := func(client *http.Client) error {
 		if client == nil {
-			return
+			return fmt.Errorf("client is nil")
 		}
 		defer func() {
 			if r := recover(); r != nil {
@@ -240,23 +248,23 @@ func main() {
 		store, err := NewRequestFilesByDevicename(client, urlin, hostname, int(filedata.Date), 1, 0)
 		if err != nil {
 			log.Printf("ERROR NewRequestFilesByDevicename: %s", err)
-			return
+			return fmt.Errorf("ERROR NewRequestFilesByDevicename: %s", err)
 		}
 		if store == nil || len(store) <= 0 {
 			if len(groupname) > 0 {
 				store, err = NewRequestFilesByDevicename(client, urlin, groupname, int(filedata.Date), 1, 0)
 				if err != nil {
 					log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
-					return
+					return fmt.Errorf("ERROR NewRequestFilesByDevicename all: %s", err)
 				}
 				if store == nil || len(store) <= 0 {
 					store, err = NewRequestFilesByDevicename(client, urlin, "all", int(filedata.Date), 1, 0)
 					if err != nil {
 						log.Printf("ERROR NewRequestFilesByDevicename all: %s", err)
-						return
+						return fmt.Errorf("ERROR NewRequestFilesByDevicename all: %s", err)
 					}
 					if store == nil || len(store) <= 0 {
-						return
+						return fmt.Errorf("ERROR NewRequestFilesByDevicename all: %s", err)
 					}
 				}
 			}
@@ -269,15 +277,15 @@ func main() {
 				break
 			}
 			lastFiledata = v
-			fmt.Printf("%+v, %+v\n", filedatanow, filedata)
+			log.Printf("FILES: %+v, %+v\n", filedatanow, filedata)
 			if filedatanow.Date > filedata.Date && (filedatanow.Override || filedatanow.Ref > filedata.Ref) {
 				if len(filedatanow.Md5) > 0 &&
-					(!strings.Contains(filedatanow.Md5, filedata.Md5) || filedatanow.Override) {
+					(strings.Compare(filedatanow.Md5, filedata.Md5) != 0 || filedatanow.Override) {
 
 					if _, err := os.Stat(pathupdatefile); err == nil {
 						if !filedatanow.Override {
 							log.Print("ERROR old pathupdatefile exits")
-							return
+							return fmt.Errorf("ERROR old pathupdatefile exits")
 						}
 						log.Printf("override pathupdatefile!")
 					}
@@ -301,21 +309,25 @@ func main() {
 					}
 					if errorDownload != nil {
 						log.Printf("ERROR DownloadFile: %s", err)
-						return
+						return fmt.Errorf("ERROR DownloadFile: %s", err)
 					}
 					log.Printf("UPDATE FILE DOWNLOAD: %+v", filedatanow)
 				}
 
 				if filedatanows, err := json.Marshal(filedatanow); err == nil {
-					if err := NewUpdateByDevicename(
-						client,
-						urlin,
-						hostname,
-						filedatanow.Md5,
-						string(filedatanows),
-						int(time.Now().Unix()),
-					); err != nil {
-						log.Printf("error NewUpdateByDevicename: %s", err)
+					for range []int{1, 2, 3} {
+						if err := NewUpdateByDevicename(
+							client,
+							urlin,
+							hostname,
+							filedatanow.Md5,
+							string(filedatanows),
+							int(time.Now().Unix()),
+						); err != nil {
+							log.Printf("error NewUpdateByDevicename: %s", err)
+							continue
+						}
+						break
 					}
 				}
 				if err := db.Update(func(tx *bolt.Tx) error {
@@ -339,17 +351,31 @@ func main() {
 						syscall.Reboot(syscall.LINUX_REBOOT_CMD_RESTART)
 						os.Exit(0)
 					}
-
+					if filedatanow.ForceApply {
+						upfatefw := exec.Command("/etc/init.d/script-migracion-init.sh")
+						if err := upfatefw.Run(); err != nil {
+							log.Println(err)
+						}
+					}
 				}
 			}
 		}
+		return nil
 	}
 	for {
 
 		select {
 		case <-tick.C:
 			// keycloakconn()
-			loopfunc(client)
+			err := loopfunc(client)
+			if err != nil {
+				select {
+				case <-start.C:
+				default:
+				}
+				start.Reset(30 * time.Second)
+			}
+
 		case <-start.C:
 			if err := keycloakconn(); err != nil {
 				start.Reset(30 * time.Second)

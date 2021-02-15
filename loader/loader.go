@@ -82,6 +82,7 @@ type FileData struct {
 	Ref         int      `json:"ref"`
 	Version     string   `json:"version"`
 	ForceReboot bool     `json:"reboot"`
+	ForceApply  bool     `json:"apply"`
 	Override    bool     `json:"override"`
 }
 

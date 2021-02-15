@@ -210,6 +210,7 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	path := r.FormValue("path")
 	date, _ := strconv.Atoi(r.FormValue("fromDate"))
 	reboot := r.FormValue("reboot")
+	apply := r.FormValue("apply")
 	override := r.FormValue("override")
 
 	filePath := filepath.Clean(fmt.Sprintf("%s/migracion_%s.zip", dir, version))
@@ -260,6 +261,9 @@ func createFile(w http.ResponseWriter, r *http.Request) {
 	filed.Version = version
 	if strings.Contains(reboot, "yes") {
 		filed.ForceReboot = true
+	}
+	if strings.Contains(apply, "yes") {
+		filed.ForceApply = true
 	}
 	if strings.Contains(override, "yes") {
 		filed.Override = true

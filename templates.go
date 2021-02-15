@@ -39,6 +39,10 @@ const formCreateFile = `<html>
 			<div>
 				<label>Force reboot?:</label>
 				<input type="checkbox" name="reboot" value="yes" autocomplete="off">
+            </div>
+            <div>
+				<label>Force apply?:</label>
+				<input type="checkbox" name="apply" value="yes" autocomplete="off">
 			</div>
 			<div>
 				<label>Override?:</label>
