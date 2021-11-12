@@ -38,11 +38,11 @@ const (
 	pathupdatefile  = "/SD/update/migracion.zip"
 	pathfirmwareRef = "/usr/include/firmware-ne"
 	pathenvfile     = "/usr/include/serial-dev"
-	showVersion     = "1.0.3"
+	showVersion     = "1.1.0"
 )
 
 func init() {
-	flag.StringVar(&urlin, "url", "http://127.0.0.1:8000", "url server")
+	flag.StringVar(&urlin, "url", "", "exampel: \"http://127.0.0.1:8000\", url server")
 	flag.BoolVar(&version, "version", false, "show version")
 }
 
@@ -52,6 +52,7 @@ func main() {
 		fmt.Printf("version: %s\n", showVersion)
 		os.Exit(2)
 	}
+	getENV()
 	if err := os.MkdirAll(dirDB, 0755); err != nil {
 		log.Fatalln(err)
 	}
@@ -72,7 +73,7 @@ func main() {
 		scanner := bufio.NewScanner(fileenv)
 		for scanner.Scan() {
 			line := scanner.Text()
-			log.Println(line)
+			// log.Println(line)
 			split := strings.Split(line, "=")
 			if len(split) > 1 {
 				envdev[split[0]] = split[1]
@@ -385,4 +386,31 @@ func main() {
 		}
 
 	}
+}
+
+func getENV() {
+	if len(keycloakurl) <= 0 {
+		keycloakurl = os.Getenv("KEYCLOAK_URL_DEVICES")
+	}
+	if len(redirecturl) <= 0 {
+		redirecturl = os.Getenv("REDIRECT_URL_DEVICES")
+	}
+	if len(realm) <= 0 {
+		realm = os.Getenv("REALM_DEVICES")
+	}
+	if len(clientSecret) <= 0 {
+		clientSecret = os.Getenv("CLIENTSECRET_DEVICES")
+	}
+	if len(clientid) <= 0 {
+		clientid = os.Getenv("CLIENTID_DEVICES")
+	}
+	if len(urlin) <= 0 {
+		urlin = os.Getenv("UPDATE_URL_DEVICES")
+	}
+
+	fmt.Printf("keycloakurl: %s\n", keycloakurl)
+	fmt.Printf("redirecturl: %s\n", redirecturl)
+	fmt.Printf("realm: %s\n", realm)
+	fmt.Printf("clientSecret: %s\n", clientSecret)
+	fmt.Printf("clientid: %s\n", clientid)
 }
